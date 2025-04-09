@@ -1,31 +1,31 @@
-import { NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
+import { NextResponse } from 'next/server'
+import { prisma } from '@/lib/prisma'
 import { Connection, PublicKey } from '@solana/web3.js';
 import { programs } from '@metaplex/js';
 import { TokenListProvider, TokenInfo } from '@solana/spl-token-registry';
-import { getMint } from '../../../../../node_modules/@solana/spl-token';
+import { getMint } from '@solana/spl-token'
 import { createTransaction } from '@/server/transaction';
 import { amounts } from '@/lib/constant';
 
 const { metadata: { Metadata } } = programs;
 
-const connection = new Connection(process.env.SOLANA_RPC || 'https://api.mainnet-beta.solana.com');
+const connection = new Connection(process.env.SOLANA_RPC || 'https://api.mainnet-beta.solana.com')
 
 export async function GET(req: Request) {
   try {
     // Extract mint address from URL query parameters
-    const { searchParams } = new URL(req.url);
-    const mint = searchParams.get('mint'); // Get the "mint" query parameter
+    const { searchParams } = new URL(req.url)
+    const mint = searchParams.get('mint')
 
     if (!mint) {
       return NextResponse.json({ error: 'Mint address is required' }, { status: 400 });
     }
 
-    const mintAddress = new PublicKey(mint);
+    const mintAddress = new PublicKey(mint)
     let tokenMetadata;
     try {
-      const metadataPDA = await Metadata.getPDA(mintAddress);
-      tokenMetadata = await Metadata.load(connection, metadataPDA);
+      const metadataPDA = await Metadata.getPDA(mintAddress)
+      tokenMetadata = await Metadata.load(connection, metadataPDA)
     } catch (error) {
       console.log('Error fetching token metadata:', error);
       // return NextResponse.json({ error: 'Failed to fetch token metadata' }, { status: 500 });
@@ -45,28 +45,28 @@ export async function GET(req: Request) {
     }
 
 
-    const tokenName = tokenMetadata.data.data.name;
-    const tokenUri = tokenMetadata.data.data.uri;
+    const tokenName = tokenMetadata.data.data.name
+    const tokenUri = tokenMetadata.data.data.uri
 
     let tokenJson;
     try {
-      const response = await fetch(tokenUri);
-      tokenJson = await response.json();
+      const response = await fetch(tokenUri)
+      tokenJson = await response.json()
       console.log(tokenJson);
     } catch (error) {
       console.log('Error fetching token metadata JSON:', error);
       return NextResponse.json({ error: 'Failed to fetch token metadata JSON' }, { status: 500 });
     }
 
-    const icon = tokenJson.image;
-    const title = "BUY " + tokenName;
+    const icon = tokenJson.image
+    const title = "BUY " + tokenName
 
     const retPayLoad = { icon, title };
     return NextResponse.json(retPayLoad);
 
   } catch (error) {
-    console.log('Error fetching data:', error);
-    return NextResponse.json({ error: 'Invalid mint' }, { status: 500 });
+    console.log('Error fetching data:', error)
+    return NextResponse.json({ error: 'Invalid mint' }, { status: 500 })
   }
 }
 
@@ -89,42 +89,31 @@ async function getTokenInfoFromRegistry(mintAddress: string) {
 
 export async function POST(req: Request) {
   try {
-    const rawBody = await req.text();
-    console.log('Raw request body:', rawBody);
-
-    let data;
-    try {
-      data = JSON.parse(rawBody);
-    } catch (parseError) {
-      console.log('Error parsing JSON:', parseError);
-      return NextResponse.json({ error: 'Invalid JSON in request body' }, { status: 400 });
-    }
-
-    const { label, description, wallet, mint, commission, percentage } = data;
+    const { label, description, wallet, mint, commission, percentage } = await req.json()
     if (!label || !description || !wallet || !mint) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
     }
 
-    const mintAddress = new PublicKey(mint);
-    const mintInfo = await getMint(connection, mintAddress);
+    const mintAddress = new PublicKey(mint)
+    const mintInfo = await getMint(connection, mintAddress)
 
     console.log(mintInfo);
-    const decimals = mintInfo.decimals;
+    const decimals = mintInfo.decimals
     if(!decimals){
       throw new Error('Invalid mint, missing token decimals');
     }
 
     let tokenMetadata;
     try {
-      const metadataPDA = await Metadata.getPDA(mintAddress);
-      tokenMetadata = await Metadata.load(connection, metadataPDA);
+      const metadataPDA = await Metadata.getPDA(mintAddress)
+      tokenMetadata = await Metadata.load(connection, metadataPDA)
     } catch (error) {
       console.log('Error fetching token metadata:', error);
       return NextResponse.json({ error: 'Failed to fetch token metadata' }, { status: 500 });
     }
 
-    let tokenName = tokenMetadata.data.data.name;
-    const tokenUri = tokenMetadata.data.data.uri;
+    let tokenName = tokenMetadata.data.data.name
+    const tokenUri = tokenMetadata.data.data.uri
 
 
     let tokenJson;
@@ -139,16 +128,16 @@ export async function POST(req: Request) {
       }
     }else{
       try {
-        const response = await fetch(tokenUri);
-        tokenJson = await response.json();
+        const response = await fetch(tokenUri)
+        tokenJson = await response.json()
       } catch (error) {
         console.log('Error fetching token metadata JSON:', error);
         return NextResponse.json({ error: 'Failed to fetch token metadata JSON' }, { status: 500 });
       }
     }
 
-    const icon = tokenJson.image;
-    const title = "BUY " + tokenName;
+    const icon = tokenJson.image
+    const title = "BUY " + tokenName
 
     const result = await prisma.blink.create({
       data: {
@@ -165,14 +154,14 @@ export async function POST(req: Request) {
         isPaid: false
       }
     });
-    console.log(result.id);
+    console.log(result.id)
 
-    const messageString = `${wallet + result.id}`;
-    const transaction = await  createTransaction(messageString, amounts.tokens, wallet);
+    const messageString = `${wallet}${result.id}`
+    const transaction = await createTransaction(messageString, amounts.tokens, wallet)
 
-    return NextResponse.json({ transaction, id: result.id });
+    return NextResponse.json({ transaction, id: result.id })
   } catch (error) {
-    console.log('Error generating blink:', error);
-    return NextResponse.json({ error: 'Failed to generate blink' }, { status: 500 });
+    console.log('Error generating blink:', error)
+    return NextResponse.json({ error: 'Failed to generate blink' }, { status: 500 })
   }
 }
