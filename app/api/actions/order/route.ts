@@ -1,27 +1,13 @@
-import { NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
-import { Connection, PublicKey, TransactionMessage, clusterApiUrl, LAMPORTS_PER_SOL } from '@solana/web3.js';
-import { amounts, BlinkType } from '@/lib/constant';
+import { NextResponse } from 'next/server'
+import { prisma } from '@/lib/prisma'
+import { Connection, PublicKey, TransactionMessage, clusterApiUrl, LAMPORTS_PER_SOL } from '@solana/web3.js'
+import { amounts, BlinkType } from '@/lib/constant'
 
 export async function POST(req: Request) {
   try {
-    // Log the raw request body
-    const rawBody = await req.text();
-    console.log('Raw request body:', rawBody);
-
-    // Try to parse the JSON
-    let data;
-    try {
-      data = JSON.parse(rawBody);
-    } catch (parseError) {
-      console.error('Error parsing JSON:', parseError);
-      return NextResponse.json({ error: 'Invalid JSON in request body' }, { status: 400 });
-    }
-
-    // Destructure and validate the parsed data
-    const { signature, orderId } = data;
+    const { signature, orderId } = await req.json()
     if (!signature || !orderId) {
-      return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
+      return NextResponse.json({ error: 'Missing required fields' }, { status: 400 })
     }
 
     const MEMO_PROGRAM_ID = new PublicKey("MemoSq4gqABAXKb96qnH8TysNcWxMyWCqXgDLGmfcHr");
@@ -96,6 +82,6 @@ export async function POST(req: Request) {
     const blinkLink = `https://www.blinkgen.xyz/api/actions/${order.endpoint}/${orderId}`;
     return NextResponse.json({ blinkLink });
   } catch (error) {
-    console.error('Error generating blink:', error);
-    return NextResponse.json({ error: 'Failed to generate blink' }, { status: 500 });
+    console.error('order error:', error)
+    return NextResponse.json({ error: 'Failed to generate blink' }, { status: 500 })
   }}
