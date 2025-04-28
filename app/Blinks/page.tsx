@@ -4,7 +4,7 @@ import { useWallet } from "@solana/wallet-adapter-react"
 import { useRouter } from "next/navigation"
 import DataCard from "../../components/DataCard/dataCard"
 import { WalletButton } from "@/components/solana/solana-provider"
-import { Footer } from "@/components/footer"
+import { HiOutlineCollection, HiArrowRight } from "react-icons/hi"
 
 export default function Page() {
   const { publicKey, connected } = useWallet()
@@ -54,57 +54,52 @@ export default function Page() {
   }
 
   return (
-    <div className="flex flex-col min-h-screen">
-      <main className="flex-grow sm:px-6 md:px-8 md:py-8 py-2 max-w-7xl mx-auto w-full">
-        <div className="glass-card w-full max-w-4xl mx-auto overflow-hidden fade-in">
-          <div className="sm:p-6 md:p-8">
-            <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-2 md:mb-6 text-center gradient-text">
-              Your Blinks
-            </h1>
+    <div className="bg-[var(--bg-color)] text-[var(--text-color)]">
+      <section className="py-8 px-4">
+        <div className="max-w-6xl mx-auto">
+          <div className="mb-6 text-center">
+            <h1 className="text-3xl md:text-4xl font-black gradient-text">My Blinks</h1>
+            <p className="text-[var(--text-secondary)] mt-2">Manage and share your created Blinks</p>
+          </div>
 
-            {!publicKey ? (
-              <div className="flex flex-col items-center justify-center py-10 space-y-4 fade-in">
-                <p className="text-[var(--text-secondary)] text-center mb-4">Connect your wallet to view your Blinks</p>
-                <div className="pulse-subtle">
-                  <WalletButton />
-                </div>
-              </div>
-            ) : loading ? (
-              <div className="flex justify-center items-center py-10">
-                <div className="shimmer w-full max-w-md h-40 rounded-xl"></div>
-              </div>
-            ) : (
-              <div className="space-y-4 max-h-[70vh] overflow-y-auto minimal-scrollbar pr-1">
-                {data && data.length > 0 ? (
-                  data
+          {!publicKey ? (
+            <div className="flex flex-col items-center justify-center py-12 space-y-4">
+              <p className="text-[var(--text-secondary)] text-center">Connect your wallet to view your Blinks</p>
+              <WalletButton />
+            </div>
+          ) : loading ? (
+            <div className="grid gap-4">
+              <div className="shimmer h-24 rounded-xl"></div>
+              <div className="shimmer h-24 rounded-xl"></div>
+              <div className="shimmer h-24 rounded-xl"></div>
+            </div>
+          ) : (
+            <div>
+              {data && data.length > 0 ? (
+                <div className="grid gap-4">
+                  {data
                     .slice()
                     .reverse()
-                    .map((blink, index) => (
-                      <div
+                    .map((blink) => (
+                      <DataCard
                         key={blink["_id"]}
-                        className="hover-lift fade-in mt-1"
-                        style={{ animationDelay: `${index * 0.1}s` }}
-                      >
-                        <DataCard
-                          code={blink.id || blink["_id"]}
-                          base={"https://dial.to/?action=solana-action:"}
-                          title={blink.title || `Open a ${blink.poolName || 'Token'} Position`}
-                          endpoint={blink.endpoint}
-                        />
-                      </div>
-                    ))
-                ) : (
-                  <div className="text-center py-8 fade-in">
-                    <p className="text-[var(--text-secondary)]">No Blinks found</p>
-                    <p className="text-sm mt-2 text-[var(--text-secondary)]">Create your first Blink to get started</p>
-                  </div>
-                )}
-              </div>
-            )}
-          </div>
+                        code={blink.id || blink["_id"]}
+                        base={"https://dial.to/?action=solana-action:"}
+                        title={blink.title || `Open a ${blink.poolName || 'Token'} Position`}
+                        endpoint={blink.endpoint}
+                      />
+                    ))}
+                </div>
+              ) : (
+                <div className="text-center py-12">
+                  <h2 className="text-xl font-semibold text-[var(--text-color)] mb-2">No Blinks Yet</h2>
+                  <p className="text-[var(--text-secondary)] mb-4">Create your first Blink to get started</p>
+                </div>
+              )}
+            </div>
+          )}
         </div>
-      </main>
-      <Footer />
+      </section>
     </div>
   )
 }
