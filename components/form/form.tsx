@@ -232,7 +232,7 @@ const Form: React.FC<FormProps> = ({
   };
 
   return (
-    <div className="w-full max-w-2xl h-full">
+    <div className="w-full max-w-2xl">
       {loading && renderLoading()}
       
       <ErrorPopup 
@@ -242,14 +242,19 @@ const Form: React.FC<FormProps> = ({
       />
 
       <div 
-        className="md:card md:p-10 h-full transition-all duration-300 ease-in-out hover:shadow-[0_0_20px_rgba(0,0,255,0.5)] hover:scale-[1.02] rounded-xl" 
+        className="p-0 md:p-0" 
         ref={form}
       >
         {showForm && (
-          <div className="space-y-6 h-full">
-            <h1 className="text-2xl md:text-3xl font-bold mb-6 gradient-text">
-              Customize Your Blink
-            </h1>
+          <div className="space-y-6">
+            <div className="text-center">
+              <h1 className="text-3xl md:text-4xl font-black mb-4 gradient-text">
+                Customize Your Blink
+              </h1>
+              <p className="text-[var(--text-secondary)] text-lg">
+                Fill in the details to create your personalized Blink
+              </p>
+            </div>
 
             <div>
               <label className="block text-sm font-medium mb-2 text-[var(--text-secondary)]">Title</label>
@@ -315,7 +320,7 @@ const Form: React.FC<FormProps> = ({
 
             {publicKey ? (
               <Button
-                className="py-3 px-6 rounded-xl font-medium cursor-pointer transition-all duration-300 bg-gradient-to-r from-[var(--accent-primary)] to-[var(--accent-secondary)] text-white hover:opacity-90 active:scale-95 flex items-center justify-center gap-2 shadow-md w-full mt-4 text-lg"
+                className="button-primary w-full mt-4 text-base"
                 onClick={handlePreview}
                 disabled={!connected || !title || !icon || !description || title.length <= 0 || icon.length <= 0}
               >
@@ -331,16 +336,24 @@ const Form: React.FC<FormProps> = ({
         )}
 
         {!showForm && (
-          <div className="space-y-6">
-            <h1 className="text-2xl md:text-3xl font-bold mb-6 gradient-text">
-              Your Blink is Ready!
-            </h1>
+          <div className="space-y-8 text-center">
+            <div>
+              <div className="p-6 rounded-2xl bg-gradient-to-r from-[var(--accent-primary)] to-[var(--accent-secondary)] text-white inline-block mb-6">
+                <HiOutlineShare className="w-12 h-12" />
+              </div>
+              <h1 className="text-3xl md:text-4xl font-black mb-4 gradient-text">
+                Your Blink is Ready!
+              </h1>
+              <p className="text-[var(--text-secondary)] text-lg">
+                Share this link to start receiving SOL payments
+              </p>
+            </div>
 
-            <div className="p-4 rounded-xl bg-[var(--card-bg)] border border-[var(--border-color)]">
-              <p className="text-sm text-[var(--text-secondary)] mb-2">Blink Link:</p>
-              <div className="flex items-center gap-2">
+            <div className="p-6 rounded-xl bg-[var(--card-bg)] border border-[var(--border-color)]">
+              <p className="text-sm text-[var(--text-secondary)] mb-3 font-medium">Blink Link:</p>
+              <div className="flex items-center gap-3">
                 <div
-                  className="flex-1 p-3 bg-[rgba(0,0,0,0.2)] rounded-lg text-sm overflow-hidden overflow-ellipsis whitespace-nowrap cursor-pointer"
+                  className="flex-1 p-4 bg-[var(--bg-color)] rounded-lg text-sm overflow-hidden overflow-ellipsis whitespace-nowrap cursor-pointer hover:bg-[var(--hover-bg)] transition-colors duration-300"
                   onClick={() => {
                     window.open(`https://dial.to/?action=solana-action:${blinkLink}`, '_blank', 'noopener');
                   }}>
@@ -348,7 +361,7 @@ const Form: React.FC<FormProps> = ({
                 </div>
                 <button
                   onClick={handleCopy}
-                  className="p-3 rounded-lg bg-[var(--border-color)] hover:bg-[var(--accent-primary)] transition-colors duration-300"
+                  className="p-4 rounded-lg bg-[var(--border-color)] hover:bg-[var(--accent-primary)] hover:text-white transition-all duration-300"
                   title="Copy to clipboard"
                 >
                   {copied ? 'Copied!' : <HiOutlineClipboardCopy size={20} />}
@@ -356,17 +369,17 @@ const Form: React.FC<FormProps> = ({
               </div>
             </div>
 
-            <div className="flex flex-col sm:flex-row gap-4 mt-6">
+            <div className="grid sm:grid-cols-2 gap-4">
               <button
-                className="button-primary flex-1"
+                className="button-primary flex items-center justify-center gap-2 py-4"
                 onClick={handleTweet}
               >
-                <HiOutlineShare size={18} className="mr-2" />
+                <HiOutlineShare size={18} />
                 Share on X
               </button>
 
               <button
-                className="button-secondary flex-1"
+                className="button-secondary flex items-center justify-center gap-2 py-4"
                 onClick={handleNew}
               >
                 Create New Blink
