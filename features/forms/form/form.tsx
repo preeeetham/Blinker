@@ -2,16 +2,16 @@
 
 import React, { useState, useRef, useCallback } from 'react';
 import { useWallet, useConnection } from '@solana/wallet-adapter-react';
-import { WalletButton } from '../solana/solana-provider';
+import { WalletButton } from '@/integrations/solana/solana-provider';
 import {
   PublicKey,
   Transaction,
 } from '@solana/web3.js';
 import { HiOutlineClipboardCopy, HiOutlineShare, HiExclamation, HiX } from 'react-icons/hi';
-import { confirmTransaction } from '@/backend/transaction';
-import { Button } from '../ui/button';
-import { validateText, validateUrl, sanitizeInput } from '@/core/validation';
-import { useErrorHandler } from '@/client-hooks/useErrorHandler';
+import { confirmTransaction } from '@/backend/server/transaction';
+import { Button } from '@/ui-kit/primitives/ui/button';
+import { validateText, validateUrl, sanitizeInput } from '@/core/lib/validation';
+import { useErrorHandler } from '@/client-hooks/hooks/useErrorHandler';
 
 interface FormProps {
   icon: string;

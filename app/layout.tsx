@@ -1,10 +1,10 @@
 import type React from "react"
 import "./global.css"
-import { AppLayout } from "@/ui-kit/primitives/app-layout"
+import { AppLayout } from "@/ui-kit/primitives/ui/app-layout"
 import { ClusterProvider } from "@/integrations/cluster/cluster-data-access"
 import { SolanaProvider } from "@/integrations/solana/solana-provider"
 import { GlobalTitleProvider } from "./GlobalStateContext"
-import { ErrorBoundary } from "@/ui-kit/primitives/error-boundary"
+import { ErrorBoundary } from "@/ui-kit/primitives/ui/error-boundary"
 
 export const metadata = {
   title: "Blinker",

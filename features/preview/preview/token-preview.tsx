@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import Image from 'next/image';
-import { Card } from '@/ui-kit/primitives/card';
-import { Button } from '@/ui-kit/primitives/button';
-import { Input } from '@/ui-kit/primitives/input';
+import { Card } from '@/ui-kit/primitives/ui/card';
+import { Button } from '@/ui-kit/primitives/ui/button';
+import { Input } from '@/ui-kit/primitives/ui/input';
 
 interface TokenPreviewProps {
     icon: string;

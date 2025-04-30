@@ -1,9 +1,9 @@
 "use client";
 import { useState } from "react";
 import { HiOutlineClipboardCopy, HiOutlineShare } from 'react-icons/hi';
-import { Card, CardContent, CardHeader, CardTitle } from "@/ui-kit/primitives/card";
-import { Button } from "@/ui-kit/primitives/button";
-import { useToast } from "@/ui-kit/primitives/use-toast";
+import { Card, CardContent, CardHeader, CardTitle } from "@/ui-kit/primitives/ui/card";
+import { Button } from "@/ui-kit/primitives/ui/button";
+import { useToast } from "@/ui-kit/primitives/ui/use-toast";
 
 interface DataProps {
   base: string;

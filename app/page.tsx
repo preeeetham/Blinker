@@ -1,6 +1,6 @@
 "use client"
-import Form from "@/features/forms/form"
-import Preview from "@/features/preview/preview"
+import Form from "@/features/forms/form/form"
+import Preview from "@/features/preview/preview/preview"
 import { useState, useEffect } from "react"
 import { useWallet } from "@solana/wallet-adapter-react"
 import { useRouter } from "next/navigation"
