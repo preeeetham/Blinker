@@ -3,13 +3,13 @@
 import { useState, useRef, useEffect, useCallback } from "react"
 import { useWallet, useConnection } from "@solana/wallet-adapter-react"
 import { useRouter } from "next/navigation"
-import TokenPreview from "@/features/preview/token-preview"
-import TokenForm from "@/features/forms/tokenForm"
+import TokenPreview from "@/features/preview/preview/token-preview"
+import TokenForm from "@/features/forms/form/tokenForm"
 import { Transaction } from "@solana/web3.js"
 import { HiOutlineClipboardCopy, HiOutlineShare, HiOutlinePlus, HiX, HiExclamation } from "react-icons/hi"
-import { confirmTransaction } from "@/backend/transaction"
-import { validateText, validateMintAddress, validatePercentage, sanitizeInput } from "@/core/validation"
-import { useErrorHandler } from "@/client-hooks/useErrorHandler"
+import { confirmTransaction } from "@/backend/server/transaction"
+import { validateText, validateMintAddress, validatePercentage, sanitizeInput } from "@/core/lib/validation"
+import { useErrorHandler } from "@/client-hooks/hooks/useErrorHandler"
 
 type CommissionType = "yes" | "no"
 

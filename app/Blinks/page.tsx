@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react"
 import { useWallet } from "@solana/wallet-adapter-react"
 import { useRouter } from "next/navigation"
-import DataCard from "../../features/data-card/dataCard"
+import DataCard from "@/features/data-card/DataCard/dataCard"
 import { WalletButton } from "@/integrations/solana/solana-provider"
 import { HiOutlineCollection, HiArrowRight } from "react-icons/hi"
 

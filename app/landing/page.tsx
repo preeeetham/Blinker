@@ -3,8 +3,8 @@ import { useState, useEffect } from "react"
 import { useWallet } from "@solana/wallet-adapter-react"
 import { useRouter } from "next/navigation"
 import { WalletButton } from "@/integrations/solana/solana-provider"
-import { Button } from "@/ui-kit/primitives/button"
-import { Card } from "@/ui-kit/primitives/card"
+import { Button } from "@/ui-kit/primitives/ui/button"
+import { Card } from "@/ui-kit/primitives/ui/card"
 import Image from "next/image"
 import {
   HiOutlineCash,

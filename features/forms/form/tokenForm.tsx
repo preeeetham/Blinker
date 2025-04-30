@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import { WalletButton } from '@/integrations/solana/solana-provider';
 import { FaInfoCircle } from 'react-icons/fa';
 import { PublicKey } from '@solana/web3.js';
-import { Button } from '../ui/button';
+import { Button } from '@/ui-kit/primitives/ui/button';
 
 type CommissionType = "yes" | "no";
 

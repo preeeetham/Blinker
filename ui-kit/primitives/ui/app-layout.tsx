@@ -1,6 +1,6 @@
 "use client";
 import { ReactNode, useEffect, useState } from 'react';
-import { WalletButton } from '../solana/solana-provider';
+import { WalletButton } from '@/integrations/solana/solana-provider';
 import { useWallet } from '@solana/wallet-adapter-react';
 import Link from 'next/link';
 import { Footer } from '@/ui-kit/footer';
