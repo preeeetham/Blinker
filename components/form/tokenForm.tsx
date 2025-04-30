@@ -46,10 +46,15 @@ export default function TokenForm({
   };
 
   return (
-    <div className="space-y-6">
-      <h1 className="text-2xl md:text-3xl font-bold mb-6 text-gradient bg-gradient-to-r from-[var(--gradient-start)] to-[var(--gradient-end)] bg-clip-text text-transparent">
-        Sell/Resell Token
-      </h1>
+    <div className="space-y-8">
+      <div className="text-center">
+        <h1 className="text-3xl md:text-4xl font-black mb-4 gradient-text">
+          Create Token Blink
+        </h1>
+        <p className="text-[var(--text-secondary)] text-lg">
+          Set up your token sale with custom commission rates
+        </p>
+      </div>
 
       {showCommissionInfo && (
         <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
