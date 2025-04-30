@@ -40,7 +40,7 @@ export default function RootLayout({
             <ClusterProvider>
               <SolanaProvider>
                 {/* Check if we're on the landing page */}
-                {typeof window !== "undefined" && window.location.pathname === "/" ? (
+                {typeof window !== "undefined" && window.location.pathname === "/landing" ? (
                   children
                 ) : (
                   <AppLayout>{children}</AppLayout>
