@@ -2,8 +2,8 @@
 import { useState, useEffect } from "react"
 import { useWallet } from "@solana/wallet-adapter-react"
 import { useRouter } from "next/navigation"
-import DataCard from "../../components/DataCard/dataCard"
-import { WalletButton } from "@/components/solana/solana-provider"
+import DataCard from "../../features/data-card/dataCard"
+import { WalletButton } from "@/integrations/solana/solana-provider"
 import { HiOutlineCollection, HiArrowRight } from "react-icons/hi"
 
 export default function Page() {
@@ -23,7 +23,7 @@ export default function Page() {
       if (!publicKey) return
 
       try {
-        const response = await fetch(`/api/actions/getBlinks?wallet=${encodeURIComponent(publicKey.toString())}`)
+        const response = await fetch(`/api/blinks/list?wallet=${encodeURIComponent(publicKey.toString())}`)
         
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);

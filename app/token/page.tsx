@@ -3,13 +3,13 @@
 import { useState, useRef, useEffect, useCallback } from "react"
 import { useWallet, useConnection } from "@solana/wallet-adapter-react"
 import { useRouter } from "next/navigation"
-import TokenPreview from "@/components/preview/token-preview"
-import TokenForm from "@/components/form/tokenForm"
+import TokenPreview from "@/features/preview/token-preview"
+import TokenForm from "@/features/forms/tokenForm"
 import { Transaction } from "@solana/web3.js"
 import { HiOutlineClipboardCopy, HiOutlineShare, HiOutlinePlus, HiX, HiExclamation } from "react-icons/hi"
-import { confirmTransaction } from "@/server/transaction"
-import { validateText, validateMintAddress, validatePercentage, sanitizeInput } from "@/lib/validation"
-import { useErrorHandler } from "@/hooks/useErrorHandler"
+import { confirmTransaction } from "@/backend/transaction"
+import { validateText, validateMintAddress, validatePercentage, sanitizeInput } from "@/core/validation"
+import { useErrorHandler } from "@/client-hooks/useErrorHandler"
 
 type CommissionType = "yes" | "no"
 
@@ -153,7 +153,7 @@ export default function Page() {
     const sanitizedMint = sanitizeInput(mint);
 
     const result = await handleAsyncError(async () => {
-      const response = await fetch("/api/actions/generate-blink/token", {
+      const response = await fetch("/api/blinks/create/token", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -183,7 +183,7 @@ export default function Page() {
       const confirmation = await confirmTransaction(signature, blockhash, lastValidBlockHeight)
       console.log("Transaction confirmed:", confirmation)
 
-      const res = await fetch("/api/actions/order", {
+      const res = await fetch("/api/orders", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -232,7 +232,7 @@ export default function Page() {
     }
 
     const result = await handleAsyncError(async () => {
-      const response = await fetch(`/api/actions/generate-blink/token?mint=${encodeURIComponent(mint)}`)
+      const response = await fetch(`/api/blinks/create/token?mint=${encodeURIComponent(mint)}`)
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
         throw new Error(errorData.error || "Failed to generate blink preview");
