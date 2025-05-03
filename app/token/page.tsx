@@ -7,7 +7,6 @@ import TokenPreview from "@/components/preview/token-preview"
 import TokenForm from "@/components/form/tokenForm"
 import { Transaction } from "@solana/web3.js"
 import { HiOutlineClipboardCopy, HiOutlineShare, HiOutlinePlus, HiX, HiExclamation } from "react-icons/hi"
-import { Footer } from "@/components/footer"
 import { confirmTransaction } from "@/server/transaction"
 import { validateText, validateMintAddress, validatePercentage, sanitizeInput } from "@/lib/validation"
 import { useErrorHandler } from "@/hooks/useErrorHandler"
@@ -266,7 +265,7 @@ export default function Page() {
   }
 
   return (
-    <div className="flex flex-col md:min-h-screen">
+    <div className="bg-[var(--bg-color)] text-[var(--text-color)]">
       {loading && renderLoading()}
       
       <ErrorPopup 
@@ -275,46 +274,67 @@ export default function Page() {
         onClose={hideError}
       />
 
-      <div className="flex-1 flex flex-col md:flex-row items-center md:items-start md:justify-center gap-8 md:p-8">
-        <div className="w-full max-w-lg h-full">
-          <div
-            className="md:card md:p-10 h-full transition-all duration-300 ease-in-out hover:shadow-[0_0_20px_rgba(0,0,255,0.5)] hover:scale-[1.02] rounded-xl"
-            ref={form}
-          >
-            {showForm && (
-              <TokenForm
-                mint={mint}
-                description={description}
-                percentage={percentage}
-                takeCommission={takeCommission}
-                showPreview={showPreview}
-                setMint={setMint}
-                setDescription={setDescription}
-                setPercentage={setPercentage}
-                setTakeCommission={setTakeCommission}
-                handlePreview={handlePreview}
-                handleSubmit={handleSubmit}
-                connected={connected}
-                publicKey={publicKey}
-              />
-            )}
+      <section className="py-8 px-4">
+        <div className="max-w-6xl mx-auto">
+          <div className="mb-8 text-center">
+            <h1 className="text-3xl md:text-4xl font-black gradient-text">Sell/Resell Tokens</h1>
+            <p className="text-[var(--text-secondary)] mt-2">Create token Blinks with optional commission</p>
+          </div>
 
-            {!showForm && (
-              <div className="space-y-6">
-                <h1 className="text-2xl md:text-3xl font-bold mb-6 gradient-text">Your Blink is Ready!</h1>
+          {showForm ? (
+            <div className="grid lg:grid-cols-2 gap-8 items-start">
+              <div>
+                <TokenForm
+                  mint={mint}
+                  description={description}
+                  percentage={percentage}
+                  takeCommission={takeCommission}
+                  showPreview={showPreview}
+                  setMint={setMint}
+                  setDescription={setDescription}
+                  setPercentage={setPercentage}
+                  setTakeCommission={setTakeCommission}
+                  handlePreview={handlePreview}
+                  handleSubmit={handleSubmit}
+                  connected={connected}
+                  publicKey={publicKey}
+                />
+              </div>
 
-                <div className="p-4 rounded-xl bg-[var(--card-bg)] border border-[var(--border-color)]">
-                  <p className="text-sm text-[var(--text-secondary)] mb-2">Blink Link:</p>
-                  <div className="flex items-center gap-2">
+              <div>
+                <div className="mb-4 text-center">
+                  <h2 className="text-xl font-semibold gradient-text">Live Preview</h2>
+                </div>
+                <TokenPreview
+                  icon={icon || "solana.jpg"}
+                  description={description || "Your Description shows up here, Keep it short and simple"}
+                  title={title || "Your Title"}
+                />
+              </div>
+            </div>
+          ) : (
+            <div className="max-w-2xl mx-auto">
+              <div className="text-center fade-in">
+                <div className="mb-6">
+                  <div className="p-6 rounded-2xl bg-gradient-to-r from-[var(--accent-primary)] to-[var(--accent-secondary)] text-white inline-block mb-4">
+                    <HiOutlineShare className="w-12 h-12" />
+                  </div>
+                  <h1 className="text-3xl md:text-4xl font-bold mb-2 gradient-text">Your Token Blink is Ready!</h1>
+                  <p className="text-[var(--text-secondary)]">Share this link to let others buy your token</p>
+                </div>
+
+                <div className="p-4 rounded-xl bg-[var(--card-bg)] border border-[var(--border-color)] mb-6">
+                  <p className="text-sm text-[var(--text-secondary)] mb-2 font-medium">Blink Link:</p>
+                  <div className="flex items-center gap-3">
                     <div
-                      className="flex-1 p-3 bg-[rgba(0,0,0,0.2)] rounded-lg text-sm overflow-hidden overflow-ellipsis whitespace-nowrap cursor-pointer"
+                      className="flex-1 p-3 bg-[var(--bg-color)] rounded-lg text-sm overflow-hidden overflow-ellipsis whitespace-nowrap cursor-pointer hover:bg-[var(--hover-bg)] transition-colors duration-300"
                       onClick={() => window.open(`https://dial.to/?action=solana-action:${blinkLink}`, "_blank")}
                     >
                       https://dial.to/?action=solana-action:{blinkLink}
                     </div>
                     <button
                       onClick={handleCopy}
-                      className="p-3 rounded-lg bg-[var(--border-color)] hover:bg-[var(--accent-primary)] transition-colors duration-300"
+                      className="p-3 rounded-lg bg-[var(--border-color)] hover:bg-[var(--accent-primary)] hover:text-white transition-all duration-300"
                       title="Copy to clipboard"
                     >
                       {copied ? "Copied!" : <HiOutlineClipboardCopy size={20} />}
@@ -322,9 +342,9 @@ export default function Page() {
                   </div>
                 </div>
 
-                <div className="flex flex-col sm:flex-row gap-4 mt-6">
+                <div className="grid sm:grid-cols-2 gap-4">
                   <button
-                    className="button-primary flex-1 flex items-center justify-center gap-2"
+                    className="button-primary flex items-center justify-center gap-2 py-3"
                     onClick={handleTweet}
                   >
                     <HiOutlineShare size={18} />
@@ -332,7 +352,7 @@ export default function Page() {
                   </button>
 
                   <button
-                    className="button-secondary flex-1 flex items-center justify-center gap-2"
+                    className="button-secondary flex items-center justify-center gap-2 py-3"
                     onClick={handleNew}
                   >
                     <HiOutlinePlus size={18} />
@@ -340,22 +360,12 @@ export default function Page() {
                   </button>
                 </div>
               </div>
-            )}
-          </div>
+            </div>
+          )}
         </div>
+      </section>
 
-        {showForm && (
-          <div className="w-full md:w-lg flex justify-center">
-            <TokenPreview
-              icon={icon || "solana.jpg"}
-              description={description || "Your Description shows up here, Keep it short and simple"}
-              title={title || "Your Title"}
-            />
-          </div>
-        )}
-      </div>
-
-      <Footer />
+      
     </div>
   )
 }

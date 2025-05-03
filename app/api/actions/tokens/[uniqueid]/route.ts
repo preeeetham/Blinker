@@ -1,5 +1,5 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
+import { NextRequest, NextResponse } from 'next/server'
+import { prisma } from '@/lib/prisma'
 import {
   ActionGetResponse,
   ACTIONS_CORS_HEADERS,
@@ -18,16 +18,15 @@ import {
   TransactionInstruction,
   TransactionMessage,
   VersionedTransaction,
-} from "@solana/web3.js";
-import { TOKEN_PROGRAM_ID } from "@solana/spl-token";
-import { getAssociatedTokenAddress, createAssociatedTokenAccountInstruction } from "@/lib/constant";
+} from "@solana/web3.js"
+import { TOKEN_PROGRAM_ID } from "@solana/spl-token"
+import { getAssociatedTokenAddress, createAssociatedTokenAccountInstruction } from "@/lib/constant"
 
-const PUMP_PROGRAM_ID = new PublicKey("6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P");
+const PUMP_PROGRAM_ID = new PublicKey("6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P")
 
-export const GET = async (req: NextRequest, { params }: { params: { uniqueid: string } }) => {
+export const GET = async (_req: NextRequest, { params }: { params: { uniqueid: string } }) => {
   try {
-    const { uniqueid } = params;
-    console.log('uniqueid', uniqueid);
+    const { uniqueid } = params
 
     let blinkData;
     try {
@@ -102,8 +101,8 @@ export const GET = async (req: NextRequest, { params }: { params: { uniqueid: st
       headers: ACTIONS_CORS_HEADERS,
     });
   } catch (error) {
-    console.error("Error fetching blink data:", error);
-    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+    console.error("tokens GET error:", error)
+    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 })
   }
 };
 
@@ -274,8 +273,7 @@ export const POST = async (req: NextRequest, { params }: { params: { uniqueid: s
       headers: ACTIONS_CORS_HEADERS,
     });
   } catch (err) {
-    console.log("-------------------------------ErrorInBuyPump----------------------------------");
-    console.error(err);
+    console.error('tokens POST error:', err)
     return NextResponse.json(
       {
         message: err instanceof Error ? err.message : String(err),
