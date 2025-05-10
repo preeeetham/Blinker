@@ -62,7 +62,7 @@ export function StarryBackground() {
       gradient.addColorStop(0, "#0f0a19")
       gradient.addColorStop(1, "#1a1225")
 
-      ctx.fillStyle = gradient
+      ctx.fillStyle = "#000000"
       ctx.fillRect(0, 0, canvas.width, canvas.height)
 
       // Draw stars

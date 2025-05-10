@@ -6,7 +6,7 @@ import { StarryBackground } from "@/components/ui/starry-background"
 import { Navbar } from "@/components/navbar"
 import { Footer } from "@/components/footer"
 import { Inter } from "next/font/google"
-import "./globals.css"
+import "./global.css"
 import type { Metadata } from "next"
 
 const inter = Inter({ subsets: ["latin"] })
