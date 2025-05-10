@@ -25,9 +25,9 @@ export function Navbar() {
         <div className="flex items-center gap-2">
           <Link href="/" className="flex items-center gap-2">
             <div className="size-8 rounded-full bg-gradient-to-r from-purple-600 to-indigo-600 flex items-center justify-center">
-              <span className="text-white font-bold">B</span>
+              <span className="text-white font-bold">SB</span>
             </div>
-            <span className="font-bold text-xl hidden sm:inline-block gradient-text">Blinker</span>
+            <span className="font-bold text-xl hidden sm:inline-block gradient-text">SolBlinks</span>
           </Link>
         </div>
 

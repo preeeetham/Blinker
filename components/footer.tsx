@@ -9,9 +9,9 @@ export function Footer() {
           <div className="space-y-4">
             <div className="flex items-center gap-2">
               <div className="size-8 rounded-full bg-gradient-to-r from-purple-600 to-indigo-600 flex items-center justify-center">
-                <span className="text-white font-bold">B</span>
+                <span className="text-white font-bold">SB</span>
               </div>
-              <span className="font-bold text-xl gradient-text">Blinker</span>
+              <span className="font-bold text-xl gradient-text">SolBlinks</span>
             </div>
             <p className="text-sm text-gray-400">Create and share Solana Actions Blinks with your audience.</p>
             <div className="flex gap-4">
@@ -91,7 +91,7 @@ export function Footer() {
         </div>
 
         <div className="mt-8 pt-6 border-t border-white/10 text-center">
-          <p className="text-sm text-gray-400">&copy; {new Date().getFullYear()} Blinker. All rights reserved.</p>
+          <p className="text-sm text-gray-400">&copy; {new Date().getFullYear()} SolBlinks. All rights reserved.</p>
         </div>
       </div>
     </footer>
