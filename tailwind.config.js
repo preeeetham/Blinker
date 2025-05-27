@@ -1,15 +1,10 @@
-import type { Config } from "tailwindcss"
-
-const config = {
+/** @type {import('tailwindcss').Config} */
+module.exports = {
   darkMode: ["class"],
   content: [
-    "./pages/**/*.{ts,tsx}",
-    "./components/**/*.{ts,tsx}",
-    "./app/**/*.{ts,tsx}",
-    "./src/**/*.{ts,tsx}",
-    "*.{js,ts,jsx,tsx,mdx}",
+    "./app/**/*.{js,ts,jsx,tsx}",
+    "./components/**/*.{js,ts,jsx,tsx}",
   ],
-  prefix: "",
   theme: {
     container: {
       center: true,
@@ -20,6 +15,13 @@ const config = {
     },
     extend: {
       colors: {
+        'bg-color': 'rgb(0, 0, 0)',
+        'card-bg': '#192734',
+        'text-color': '#ffffff',
+        'text-secondary': '#8899A6',
+        'accent-purple': '#9945FF',
+        'accent-green': '#14F195',
+        'border-color': '#38444D',
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",
@@ -61,21 +63,23 @@ const config = {
       },
       keyframes: {
         "accordion-down": {
-          from: { height: "0" },
+          from: { height: 0 },
           to: { height: "var(--radix-accordion-content-height)" },
         },
         "accordion-up": {
           from: { height: "var(--radix-accordion-content-height)" },
-          to: { height: "0" },
+          to: { height: 0 },
         },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
       },
+      screens: {
+        'lap': '1270px',
+        'md': '1000px',
+      }
     },
   },
   plugins: [require("tailwindcss-animate")],
-} satisfies Config
-
-export default config
+}
