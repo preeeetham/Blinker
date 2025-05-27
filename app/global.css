@@ -4,77 +4,445 @@
 
 @layer base {
   :root {
-    --background: 240 10% 3.9%;
-    --foreground: 0 0% 98%;
+    /* Light mode (default) - Modern and vibrant */
+    --bg-color: #f0f4f8;
+    --card-bg: #ffffff;
+    --text-color: #1a202c;
+    --text-secondary: #4a5568;
+    --accent-primary: #6366f1;
+    --accent-secondary: #8b5cf6;
+    --border-color: #e2e8f0;
+    --shadow-color: rgba(0, 0, 0, 0.05);
+    --gradient-start: #6366f1;
+    --gradient-end: #8b5cf6;
+    --card-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    --hover-bg: #f7fafc;
 
-    --card: 240 10% 3.9%;
-    --card-foreground: 0 0% 98%;
-
-    --popover: 240 10% 3.9%;
-    --popover-foreground: 0 0% 98%;
-
-    --primary: 270 95% 75%;
-    --primary-foreground: 0 0% 98%;
-
-    --secondary: 240 3.7% 15.9%;
-    --secondary-foreground: 0 0% 98%;
-
-    --muted: 240 3.7% 15.9%;
-    --muted-foreground: 240 5% 64.9%;
-
-    --accent: 240 3.7% 15.9%;
-    --accent-foreground: 0 0% 98%;
-
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 0 0% 98%;
-
-    --border: 240 3.7% 15.9%;
-    --input: 240 3.7% 15.9%;
-    --ring: 240 4.9% 83.9%;
-
+    /* Shadcn UI Variables */
+    --background: 0 0% 100%;
+    --foreground: 222.2 84% 4.9%;
+    --card: 0 0% 100%;
+    --card-foreground: 222.2 84% 4.9%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 222.2 84% 4.9%;
+    --primary: 248 90% 66%;
+    --primary-foreground: 210 40% 98%;
+    --secondary: 210 40% 96.1%;
+    --secondary-foreground: 222.2 47.4% 11.2%;
+    --muted: 210 40% 96.1%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+    --accent: 210 40% 96.1%;
+    --accent-foreground: 222.2 47.4% 11.2%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 248 90% 66%;
     --radius: 0.5rem;
   }
-}
 
-@layer base {
-  * {
-    @apply border-border;
+  .dark-mode {
+    /* Dark mode - Deep and rich */
+    --bg-color: #0f172a;
+    --card-bg: #1e293b;
+    --text-color: #f8fafc;
+    --text-secondary: #cbd5e1;
+    --accent-primary: #818cf8;
+    --accent-secondary: #a78bfa;
+    --border-color: #334155;
+    --shadow-color: rgba(0, 0, 0, 0.2);
+    --card-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3), 0 4px 6px -2px rgba(0, 0, 0, 0.2);
+    --hover-bg: #1e293b;
+
+    /* Shadcn UI Dark Mode Variables */
+    --background: 222.2 84% 4.9%;
+    --foreground: 210 40% 98%;
+    --card: 222.2 84% 4.9%;
+    --card-foreground: 210 40% 98%;
+    --popover: 222.2 84% 4.9%;
+    --popover-foreground: 210 40% 98%;
+    --primary: 248 90% 66%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 217.2 32.6% 17.5%;
+    --secondary-foreground: 210 40% 98%;
+    --muted: 217.2 32.6% 17.5%;
+    --muted-foreground: 215 20.2% 65.1%;
+    --accent: 217.2 32.6% 17.5%;
+    --accent-foreground: 210 40% 98%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 217.2 32.6% 17.5%;
+    --input: 217.2 32.6% 17.5%;
+    --ring: 248 90% 66%;
   }
-  body {
-    @apply bg-background text-foreground;
+
+  * {
+    @apply box-border m-0 p-0;
+  }
+
+  body, html {
+    @apply font-sans bg-[var(--bg-color)] text-[var(--text-color)] h-full transition-colors duration-200;
+  }
+
+  /* Add smooth scrolling */
+  html {
+    @apply scroll-smooth;
   }
 }
 
 @layer components {
-  .gradient-text {
-    @apply bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-indigo-500;
+  .app-layout {
+    @apply flex flex-col min-h-screen;
+  }
+
+  .Title {
+    @apply text-[2.5rem] font-bold m-0 text-[var(--text-color)];
+  }
+
+  .main {
+    @apply flex-grow flex justify-center py-8 px-[50px] gap-8;
+  }
+
+  footer {
+    @apply flex justify-center items-center p-4 text-[0.9rem] text-[var(--text-secondary)];
   }
 
   .card {
-    @apply bg-black/40 backdrop-blur-md rounded-xl border border-white/10 p-6 shadow-xl;
-  }
-
-  .input-field {
-    @apply w-full px-4 py-3 rounded-lg bg-black/30 border border-white/10 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition duration-200;
-  }
-
-  .textarea-field {
-    @apply w-full px-4 py-3 rounded-lg bg-black/30 border border-white/10 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition duration-200 resize-none;
+    @apply rounded-2xl bg-[var(--card-bg)] shadow-[var(--card-shadow)] border border-[var(--border-color)] transition-all duration-300 backdrop-blur-sm bg-opacity-80;
   }
 
   .button-primary {
-    @apply px-6 py-3 rounded-lg bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-medium hover:from-purple-700 hover:to-indigo-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 focus:ring-offset-black transition duration-200 shadow-lg shadow-purple-500/20;
+    @apply py-3 px-6 rounded-xl font-medium cursor-pointer transition-all duration-300 bg-gradient-to-r from-[var(--accent-primary)] to-[var(--accent-secondary)] text-white hover:opacity-90 active:scale-95 flex items-center justify-center gap-2 shadow-md;
   }
 
   .button-secondary {
-    @apply px-6 py-3 rounded-lg bg-white/5 border border-white/10 text-white font-medium hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-white/20 focus:ring-offset-2 focus:ring-offset-black transition duration-200;
+    @apply py-3 px-6 rounded-xl font-medium cursor-pointer transition-all duration-300 bg-[var(--card-bg)] text-[var(--text-color)] border border-[var(--border-color)] hover:bg-[var(--hover-bg)] active:scale-95 flex items-center justify-center gap-2;
   }
 
-  .nav-link {
-    @apply text-gray-300 hover:text-white transition-colors duration-200;
+  .input-field {
+    @apply w-full p-4 bg-[var(--card-bg)] border border-[var(--border-color)] rounded-xl text-[var(--text-color)] text-base focus:outline-none focus:ring-2 focus:ring-[var(--accent-primary)] transition-all duration-300;
   }
 
-  .nav-link-active {
-    @apply text-white font-medium;
+  .textarea-field {
+    @apply w-full p-4 bg-[var(--card-bg)] border border-[var(--border-color)] rounded-xl text-[var(--text-color)] text-base resize-none focus:outline-none focus:ring-2 focus:ring-[var(--accent-primary)] transition-all duration-300;
+  }
+
+  /* Theme toggle */
+  .theme-toggle {
+    @apply relative inline-flex items-center cursor-pointer;
+  }
+
+  .theme-toggle-checkbox {
+    @apply sr-only;
+  }
+
+  .theme-toggle-slider {
+    @apply w-12 h-6 bg-[var(--border-color)] rounded-full transition-all duration-300;
+  }
+
+  .theme-toggle-slider:before {
+    content: "";
+    @apply absolute h-5 w-5 left-0.5 bottom-0.5 bg-white rounded-full transition-all duration-300 shadow-md;
+  }
+
+  .theme-toggle-checkbox:checked + .theme-toggle-slider {
+    @apply bg-gradient-to-r from-[var(--accent-primary)] to-[var(--accent-secondary)];
+  }
+
+  .theme-toggle-checkbox:checked + .theme-toggle-slider:before {
+    @apply transform translate-x-6;
+  }
+
+  /* Mobile navigation styles */
+  .mobile-menu-button {
+    @apply fixed bottom-6 right-6 z-30 flex items-center justify-center w-14 h-14 rounded-full bg-gradient-to-r from-[var(--accent-primary)] to-[var(--accent-secondary)] text-white shadow-lg;
+  }
+
+  .mobile-overlay {
+    @apply fixed inset-0 bg-black/20 backdrop-blur-sm z-10;
+  }
+
+  /* Custom scrollbar - hide completely */
+  .custom-scrollbar {
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;  /* Firefox */
+  }
+
+  .custom-scrollbar::-webkit-scrollbar {
+    display: none;  /* Chrome, Safari and Opera */
+  }
+
+  .minimal-scrollbar {
+    scrollbar-width: thin; /* Firefox */
+    scrollbar-color: #999 transparent; /* Only thumb visible */
+  }
+
+  .minimal-scrollbar::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  .minimal-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .minimal-scrollbar::-webkit-scrollbar-thumb {
+    background-color: #999;
+    border-radius: 10px;
+  }
+
+  .minimal-scrollbar::-webkit-scrollbar-thumb:hover {
+    background-color: #777;
+  }
+
+  /* Card hover effect */
+  .hover-lift {
+    @apply transition-all duration-300 hover:-translate-y-1 hover:shadow-lg;
+  }
+
+  /* Fade in animation */
+  .fade-in {
+    animation: fadeIn 0.5s ease-in-out;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Gradient text */
+  .gradient-text {
+    @apply bg-gradient-to-r from-[var(--accent-primary)] to-[var(--accent-secondary)] text-transparent bg-clip-text;
+  }
+
+  /* Glass effect */
+  .glass-effect {
+    @apply backdrop-blur-md bg-white/10 border border-white/20;
+  }
+
+  /* Pulse animation */
+  .pulse {
+    animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.5;
+    }
+  }
+
+  /* Shimmer effect */
+  .shimmer {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .shimmer::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    transform: translateX(-100%);
+    background-image: linear-gradient(
+      90deg,
+      rgba(255, 255, 255, 0) 0,
+      rgba(255, 255, 255, 0.2) 20%,
+      rgba(255, 255, 255, 0.5) 60%,
+      rgba(255, 255, 255, 0)
+    );
+    animation: shimmer 2s infinite;
+  }
+
+  @keyframes shimmer {
+    100% {
+      transform: translateX(100%);
+    }
+  }
+
+  /* Glow effect */
+  .glow {
+    position: relative;
+  }
+
+  .glow::after {
+    content: "";
+    position: absolute;
+    top: -5px;
+    left: -5px;
+    right: -5px;
+    bottom: -5px;
+    z-index: -1;
+    background: linear-gradient(45deg, var(--accent-primary), var(--accent-secondary));
+    filter: blur(15px);
+    opacity: 0.15;
+    transition: opacity 0.3s;
+    border-radius: inherit;
+  }
+
+  .glow:hover::after {
+    opacity: 0.3;
+  }
+
+  /* Floating animation */
+  .floating {
+    animation: floating 3s ease-in-out infinite;
+  }
+
+  @keyframes floating {
+    0% {
+      transform: translateY(0px);
+    }
+    50% {
+      transform: translateY(-5px);
+    }
+    100% {
+      transform: translateY(0px);
+    }
+  }
+}
+
+/* Large screens */
+@media (min-width: 1536px) {
+  .card {
+    @apply p-6;
+  }
+
+  .Title {
+    @apply text-[3rem];
+  }
+}
+
+/* Desktop */
+@media (max-width: 1250px) {
+  .form {
+    @apply !p-6;
+  }
+
+  .Title {
+    @apply text-[2.5rem];
+  }
+
+  .card {
+    @apply p-5;
+  }
+}
+
+/* Tablets */
+@media (max-width: 1025px) {
+  .main {
+    @apply p-5 gap-4 justify-between;
+  }
+
+  .card {
+    @apply p-4;
+  }
+}
+
+/* Small tablets */
+@media (max-width: 930px) {
+  .header {
+    @apply py-3 px-4;
+  }
+
+  .Title {
+    @apply text-[2rem];
+  }
+
+  .main {
+    @apply flex-col py-[20px] px-[20px] gap-[20px];
+  }
+
+  .Head {
+    @apply flex-col !p-[15px];
+  }
+}
+
+/* Mobile devices */
+@media (max-width: 640px) {
+  .header {
+    @apply py-2 px-3;
+  }
+
+  .Title {
+    @apply text-[1.8rem];
+  }
+
+  .main {
+    @apply flex-col py-3 px-3 gap-4;
+  }
+
+  .card {
+    @apply p-4 rounded-xl;
+  }
+
+  .button-primary, .button-secondary {
+    @apply py-2.5 px-4 text-sm;
+  }
+
+  .input-field, .textarea-field {
+    @apply p-3 text-sm;
+  }
+
+  h1.text-2xl {
+    @apply text-xl;
+  }
+
+  h2.text-xl {
+    @apply text-lg;
+  }
+}
+
+/* Hide scrollbar for cleaner look */
+@layer utilities {
+  .scrollbar-none {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  .scrollbar-none::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Animation delay utilities */
+  .animation-delay-100 {
+    animation-delay: 0.1s;
+  }
+
+  .animation-delay-200 {
+    animation-delay: 0.2s;
+  }
+
+  .animation-delay-300 {
+    animation-delay: 0.3s;
+  }
+
+  .animation-delay-400 {
+    animation-delay: 0.4s;
+  }
+
+  .animation-delay-500 {
+    animation-delay: 0.5s;
+  }
+
+  /* Blur utilities */
+  .blur-xs {
+    backdrop-filter: blur(2px);
+  }
+
+  .blur-sm {
+    backdrop-filter: blur(4px);
+  }
+
+  .blur-md {
+    backdrop-filter: blur(8px);
+  }
+
+  .blur-lg {
+    backdrop-filter: blur(12px);
   }
 }

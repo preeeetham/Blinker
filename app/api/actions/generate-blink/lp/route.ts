@@ -17,8 +17,14 @@ export async function POST(req: Request) {
     }
 
     // Destructure and validate the parsed data
-    const { icon, label, description, title, wallet } = data;
-    if (!icon || !label || !description || !title || !wallet) {
+    const { poolName, Liquidity, Volume, APR, Fee,
+            DailyFee, BinStep, TokenXName, TokenYName,
+            mintX, mintY, wallet, poolId, percentage } = data;
+
+    if (!poolName || !Liquidity || Volume==null || APR==null || !Fee
+        || DailyFee==null || BinStep==null || !TokenXName || !TokenYName
+        || !mintX || !mintY || !wallet || !poolId
+        || !percentage) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
     }
 
@@ -26,19 +32,29 @@ export async function POST(req: Request) {
     const db = client.db("Cluster0");
 
     const result = await db.collection("blinks").insertOne({
-      icon,
-      label,
-      description,
-      title,
-      wallet,
-      endpoint: "donate",
+      icon : "https://www.getblink.fun/meteora.jpg",
+      poolName,
+      Liquidity,
+      Volume,
+      APR,
+      Fee,
+      DailyFee,
+      BinStep,
+      TokenXName,
+      TokenYName,
+      mintX,
+      mintY,
       createdAt: new Date(),
-      isPaid: false
+      isPaid: false,
+      wallet,
+      endpoint: "lp",
+      poolId,
+      percentage,
     });
 
     console.log(result);
 
-    const blinkLink = `https://www.getblink.fun/api/actions/donate/${result.insertedId}`;
+    const blinkLink = `https://www.getblink.fun/api/actions/lp/${result.insertedId}`;
     return NextResponse.json({ blinkLink, id: result.insertedId.toString() });
   } catch (error) {
     console.error('Error generating blink:', error);
