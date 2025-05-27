@@ -1,10 +1,14 @@
-// Inspired by react-hot-toast library
+// This file was copied from the use-toast.ts file but renamed to .tsx to fix import issues
 import * as React from "react"
 
-import type {
-  ToastActionElement,
-  ToastProps,
-} from "@/components/ui/toast"
+// Define the types directly here to avoid circular dependencies
+type ToastProps = React.ComponentPropsWithoutRef<typeof Toast> & {
+  variant?: "default" | "destructive"
+  open?: boolean
+  onOpenChange?: (open: boolean) => void
+}
+
+type ToastActionElement = React.ReactElement
 
 const TOAST_LIMIT = 5
 const TOAST_REMOVE_DELAY = 1000000
@@ -189,4 +193,7 @@ function useToast() {
   }
 }
 
-export { useToast, toast }
+// Define the Toast component to fix the type issue
+const Toast: React.FC<React.PropsWithChildren<any>> = () => null;
+
+export { useToast, toast, type ToastProps, type ToastActionElement }

@@ -1,11 +1,11 @@
-import type React from "react"
-import { Loader2 } from "lucide-react"
+import React from 'react';
+import { Loader2 } from 'lucide-react';
 
 interface LoadingScreenProps {
-  subtext?: string
+  subtext?: string;
 }
 
-const LoadingScreen: React.FC<LoadingScreenProps> = ({ subtext = "Loading..." }) => {
+const LoadingScreen: React.FC<LoadingScreenProps> = ({ subtext = 'Loading...' }) => {
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-black/50 backdrop-blur-md z-[9999]">
       <div className="text-center">
@@ -15,7 +15,7 @@ const LoadingScreen: React.FC<LoadingScreenProps> = ({ subtext = "Loading..." })
         <p className="mt-4 text-white text-base font-medium">{subtext}</p>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default LoadingScreen
+export default LoadingScreen;
