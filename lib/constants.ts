@@ -1,22 +1,29 @@
-import { ASSOCIATED_TOKEN_PROGRAM_ID, TOKEN_PROGRAM_ID } from "@solana/spl-token"
-import { PublicKey, SystemProgram, TransactionInstruction } from "@solana/web3.js"
+import { ASSOCIATED_TOKEN_PROGRAM_ID, TOKEN_PROGRAM_ID } from "@solana/spl-token";
+import { PublicKey, SystemProgram, TransactionInstruction } from "@solana/web3.js";
 
-export const TREASURY_PUBKEY = new PublicKey("8twrkXxvDzuUezvbkgg3LxpTEZ59KiFx2VxPFDkucLk3")
+export const TREASURY_PUBKEY = new PublicKey("8twrkXxvDzuUezvbkgg3LxpTEZ59KiFx2VxPFDkucLk3");
 
-export async function getAssociatedTokenAddress(mint: PublicKey, owner: PublicKey): Promise<PublicKey> {
+export async function getAssociatedTokenAddress(
+  mint: PublicKey,
+  owner: PublicKey
+): Promise<PublicKey> {
   return (
     await PublicKey.findProgramAddress(
-      [owner.toBuffer(), TOKEN_PROGRAM_ID.toBuffer(), mint.toBuffer()],
-      ASSOCIATED_TOKEN_PROGRAM_ID,
+      [
+        owner.toBuffer(),
+        TOKEN_PROGRAM_ID.toBuffer(),
+        mint.toBuffer(),
+      ],
+      ASSOCIATED_TOKEN_PROGRAM_ID
     )
-  )[0]
+  )[0];
 }
 
 export function createAssociatedTokenAccountInstruction(
-  payer: PublicKey, // The payer of the transaction (usually the user)
-  associatedTokenAddress: PublicKey, // The address of the associated token account
-  owner: PublicKey, // The owner of the associated token account
-  mint: PublicKey, // The token mint address
+  payer: PublicKey,        
+  associatedTokenAddress: PublicKey,  
+  owner: PublicKey,        
+  mint: PublicKey         
 ): TransactionInstruction {
   return new TransactionInstruction({
     keys: [
@@ -29,6 +36,12 @@ export function createAssociatedTokenAccountInstruction(
       { pubkey: ASSOCIATED_TOKEN_PROGRAM_ID, isSigner: false, isWritable: false },
     ],
     programId: ASSOCIATED_TOKEN_PROGRAM_ID,
-    data: Buffer.alloc(0), // The instruction data (empty in this case)
-  })
+    data: Buffer.alloc(0), 
+  });
+}
+
+export enum BlinkType {
+  lp = "lp",
+  tokens = "tokens",
+  donate = "donate"
 }
