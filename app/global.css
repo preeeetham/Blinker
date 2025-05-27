@@ -5,7 +5,7 @@
 @layer base {
   :root {
     /* Light mode (default) - Modern and vibrant */
-    --bg-color: #f0f4f8;
+    --bg-color: hsl(210, 36%, 96%);
     --card-bg: #ffffff;
     --text-color: #1a202c;
     --text-secondary: #4a5568;
@@ -43,7 +43,7 @@
 
   .dark-mode {
     /* Dark mode - Deep and rich */
-    --bg-color: #0f172a;
+    --bg-color: #000000;
     --card-bg: #1e293b;
     --text-color: #f8fafc;
     --text-secondary: #cbd5e1;

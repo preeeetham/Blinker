@@ -88,9 +88,6 @@ const Sidebar = () => {
     }else if(href === '/Blinks'){
       setValue('My Blinks');
       setInfo('The list of Blinks created by this wallet, using GetBlink.fun')
-    }else if(href === '/prep-trade'){
-      setValue('PREP-Trade Blinks');
-      setInfo('Create a sharebale Blink that allows others to place PREP trade orders on drift')
     }
     console.log('Active Button:', href);
     console.log('value:', value);
@@ -169,49 +166,9 @@ const Sidebar = () => {
                 My Blinks
               </SideBarButton>
             </div>
-
-            <div className="fade-in animation-delay-400">
-              <SideBarButton
-                href="/ComingSoon"
-                icon={<HiPresentationChartLine />}
-                isActive={activeButton === '/prep-trade'}
-                onClick={() => handleButtonClick('/prep-trade')}
-              >
-                PREP-Trade Blinks
-              </SideBarButton>
-            </div>
           </div>
         </div>
 
-        <div className="px-[min(5%,20px)] space-y-3 fade-in animation-delay-500 overflow-y-scroll custom-scrollbar">
-          <div className="h-px w-full bg-gradient-to-r from-transparent via-[var(--border-color)] to-transparent mb-4"></div>
-          <a
-            href='https://github.com/shubhiscoding/getblink.fun'
-            target='_blank'
-            className="flex items-center gap-[min(3%,12px)] p-[min(3.5%,14px)] text-[var(--text-secondary)] rounded-xl transition-all duration-300 hover:bg-[var(--hover-bg)] hover:text-[var(--text-color)] hover-lift whitespace-nowrap text-ellipsis overflow-hidden"
-          >
-            <FaGithub className="text-[var(--text-color)]" />
-            <span className="font-medium">Source Code</span>
-          </a>
-
-          <a
-            href='https://x.com/getblinkdotfun'
-            target='_blank'
-            className="flex items-center gap-[min(3%,12px)] p-[min(3.5%,14px)] text-[var(--text-secondary)] rounded-xl transition-all duration-300 hover:bg-[var(--hover-bg)] hover:text-[var(--text-color)] hover-lift whitespace-nowrap text-ellipsis overflow-hidden"
-          >
-            <FaTwitter className="text-[#1DA1F2]" />
-            <span className="font-medium">@getblinkdotfun</span>
-          </a>
-
-          <a
-            href='https://x.com/LookWhatIbuild'
-            target='_blank'
-            className="flex items-center gap-[min(3%,12px)] p-[min(3.5%,14px)] text-[var(--text-secondary)] rounded-xl transition-all duration-300 hover:bg-[var(--hover-bg)] hover:text-[var(--text-color)] hover-lift whitespace-nowrap text-ellipsis overflow-hidden"
-          >
-            <FaHardHat className="text-[var(--text-color)]" />
-            <span className="font-medium">@LookWhatIBuild</span>
-          </a>
-        </div>
       </div>
 
       {isMobile && (

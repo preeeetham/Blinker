@@ -18,109 +18,93 @@ import {
   Transaction,
 } from "@solana/web3.js";
 
+// GET endpoint
 export const GET = async (req: NextRequest, { params }: { params: { uniqueid: string } }) => {
   try {
     const { uniqueid } = params;
-    console.log('uniqueid', uniqueid);
 
     const client = await clientPromise;
-    const db = client.db("Cluster0");
+    const db = client.db("YOUR_DB_NAME");
 
-    let blinkData;
+    let data;
     if (ObjectId.isValid(uniqueid)) {
-      blinkData = await db.collection("blinks").findOne({ _id: new ObjectId(uniqueid) });
+      data = await db.collection("YOUR_COLLECTION_NAME").findOne({ _id: new ObjectId(uniqueid) });
     }
 
-    if(blinkData && blinkData.isPaid === false){
+    if (data && data.isPaid === false) {
       return NextResponse.json(
-        {
-          message: "This blink is not paid for yet. Please pay to use it.",
-        },
-        {
-          status: 403,
-          headers: ACTIONS_CORS_HEADERS,
-        },
+        { message: "This resource is not paid for yet." },
+        { status: 403, headers: ACTIONS_CORS_HEADERS },
       );
     }
 
-    if (!blinkData) {
-      blinkData = {
-        icon: "https://www.vegrecipesofindia.com/wp-content/uploads/2018/02/cafe-style-hot-coffee-recipe-1.jpg",
-        label: "Buy me a coffee ☕️",
-        description: "👋 If you are interested in helping to support my work, buy me a coffee with SOL using this super sweet blink of mine :)",
-        title: "Buy Me a Coffee? ☕️",
+    if (!data) {
+      data = {
+        icon: "https://example.com/icon.jpg",
+        label: "Default Label",
+        description: "Default description text",
+        title: "Default Title",
       };
     }
 
     const payload: ActionGetResponse = {
-      icon: blinkData.icon,
-      label: blinkData.label,
-      description: blinkData.description,
-      title: blinkData.title,
+      icon: data.icon,
+      label: data.label,
+      description: data.description,
+      title: data.title,
       links: {
         actions: [
           {
-            href: `/api/actions/donate/${uniqueid}?amount=0.1`,
+            href: `/api/actions/pay/${uniqueid}?amount=0.1`,
             label: "0.1 SOL",
             type: "post",
           },
           {
-            href: `/api/actions/donate/${uniqueid}?amount=0.5`,
+            href: `/api/actions/pay/${uniqueid}?amount=0.5`,
             label: "0.5 SOL",
             type: "post",
           },
           {
-            href: `/api/actions/donate/${uniqueid}?amount=1.0`,
+            href: `/api/actions/pay/${uniqueid}?amount=1.0`,
             label: "1.0 SOL",
             type: "post",
           },
           {
-            href: `/api/actions/donate/${uniqueid}?amount={amount}`,
-            label: "Send SOL",
+            href: `/api/actions/pay/${uniqueid}?amount={amount}`,
+            label: "Custom SOL",
             type: "post",
-            parameters: [
-              {
-                name: "amount",
-                label: "Enter a SOL amount",
-              },
-            ],
+            parameters: [{ name: "amount", label: "Enter SOL amount" }],
           },
         ],
       },
     };
 
-    return NextResponse.json(payload, {
-      headers: ACTIONS_CORS_HEADERS,
-    });
+    return NextResponse.json(payload, { headers: ACTIONS_CORS_HEADERS });
   } catch (error) {
-    console.error("Error fetching blink data:", error);
+    console.error("GET Error:", error);
     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
   }
 };
 
 export const OPTIONS = GET;
 
+// POST endpoint
 export const POST = async (req: NextRequest, { params }: { params: { uniqueid: string } }) => {
   try {
     const { uniqueid } = params;
 
     const client = await clientPromise;
-    const db = client.db("Cluster0");
+    const db = client.db("YOUR_DB_NAME");
 
-    let blinkData;
+    let data;
     if (ObjectId.isValid(uniqueid)) {
-      blinkData = await db.collection("blinks").findOne({ _id: new ObjectId(uniqueid) });
+      data = await db.collection("YOUR_COLLECTION_NAME").findOne({ _id: new ObjectId(uniqueid) });
     }
 
-    if(blinkData && blinkData.isPaid === false){
+    if (data && data.isPaid === false) {
       return NextResponse.json(
-        {
-          message: "This blink is not paid for yet. Please pay to use it.",
-        },
-        {
-          status: 403,
-          headers: ACTIONS_CORS_HEADERS,
-        },
+        { message: "This resource is not paid for yet." },
+        { status: 403, headers: ACTIONS_CORS_HEADERS },
       );
     }
 
@@ -130,57 +114,43 @@ export const POST = async (req: NextRequest, { params }: { params: { uniqueid: s
     let account: PublicKey;
     try {
       account = new PublicKey(body.account);
-    } catch (err) {
-      throw "Invalid 'account' provided. It's not a real pubkey";
+    } catch {
+      throw "Invalid public key.";
     }
 
-    let amount: number = 0.1;
+    let amount = 0.1;
     const amountParam = searchParams.get("amount");
     if (amountParam) {
-      try {
-        amount = parseFloat(amountParam) || amount;
-      } catch (err) {
-        throw "Invalid 'amount' input";
-      }
+      amount = parseFloat(amountParam) || amount;
     }
 
-    const SOLANA_RPC_URL = clusterApiUrl("mainnet-beta", false);
-    if (!SOLANA_RPC_URL) throw "Unable to find RPC url...awkward...";
-    const connection = new Connection(SOLANA_RPC_URL);
+    const RPC_URL = clusterApiUrl("mainnet-beta");
+    const connection = new Connection(RPC_URL);
 
     const transaction = new Transaction().add(
       SystemProgram.transfer({
         fromPubkey: account,
         lamports: amount * LAMPORTS_PER_SOL,
-        toPubkey: blinkData? (blinkData.wallet || TREASURY_PUBKEY): TREASURY_PUBKEY,
+        toPubkey: data ? (data.wallet || TREASURY_PUBKEY) : TREASURY_PUBKEY,
       }),
     );
     transaction.feePayer = account;
-    transaction.recentBlockhash = (
-      await connection.getLatestBlockhash()
-    ).blockhash;
+    transaction.recentBlockhash = (await connection.getLatestBlockhash()).blockhash;
 
     const payload: ActionPostResponse = await createPostResponse({
       fields: {
         type: "transaction",
         transaction,
-        message: "Thanks for the coffee fren :)",
+        message: "Thanks for your support!",
       },
     });
 
-    return NextResponse.json(payload, {
-      headers: ACTIONS_CORS_HEADERS,
-    });
+    return NextResponse.json(payload, { headers: ACTIONS_CORS_HEADERS });
   } catch (err) {
-    console.error(err);
+    console.error("POST Error:", err);
     return NextResponse.json(
-      {
-        message: err instanceof Error ? err.message : String(err),
-      },
-      {
-        status: 500,
-        headers: ACTIONS_CORS_HEADERS,
-      },
+      { message: err instanceof Error ? err.message : String(err) },
+      { status: 500, headers: ACTIONS_CORS_HEADERS },
     );
   }
 };

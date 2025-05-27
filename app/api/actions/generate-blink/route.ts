@@ -38,7 +38,7 @@ export async function POST(req: Request) {
 
     console.log(result);
 
-    const blinkLink = `https://www.getblink.fun/api/actions/donate/${result.insertedId}`;
+    const blinkLink = `https://www.blinkgen.xyz/api/actions/donate/${result.insertedId}`;
     return NextResponse.json({ blinkLink, id: result.insertedId.toString() });
   } catch (error) {
     console.error('Error generating blink:', error);

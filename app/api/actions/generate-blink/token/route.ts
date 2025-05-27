@@ -166,7 +166,7 @@ export async function POST(req: Request) {
       isPaid: false
     });
     console.log(result.insertedId);
-    const blinkLink = `https://www.getblink.fun/api/actions/tokens/${result.insertedId}`;
+    const blinkLink = `https://www.blinkgen.xyz/api/actions/tokens/${result.insertedId}`;
     return NextResponse.json({ blinkLink, id: result.insertedId.toString() });
   } catch (error) {
     console.log('Error generating blink:', error);

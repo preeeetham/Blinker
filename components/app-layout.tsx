@@ -5,7 +5,7 @@ import { Toaster } from '@/components/ui/toaster';
 
 export function AppLayout({ children }: { children: ReactNode }) {
   return (
-    <div className="flex flex-col min-h-screen bg-[var(--bg-color)]">
+    <div className="flex flex-col min-h-screen bg-white/10]">
       <header className="border-b border-[var(--border-color)] py-4 px-6">
         <div className="container mx-auto flex items-center justify-between">
           <div>

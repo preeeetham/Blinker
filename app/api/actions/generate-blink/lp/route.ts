@@ -32,7 +32,7 @@ export async function POST(req: Request) {
     const db = client.db("Cluster0");
 
     const result = await db.collection("blinks").insertOne({
-      icon : "https://www.getblink.fun/meteora.jpg",
+      icon : "https://pbs.twimg.com/profile_images/1623689233813864450/XDk-DpAP_400x400.jpg",
       poolName,
       Liquidity,
       Volume,
@@ -54,7 +54,7 @@ export async function POST(req: Request) {
 
     console.log(result);
 
-    const blinkLink = `https://www.getblink.fun/api/actions/lp/${result.insertedId}`;
+    const blinkLink = `https://www.blinkgen.xyz/api/actions/lp/${result.insertedId}`;
     return NextResponse.json({ blinkLink, id: result.insertedId.toString() });
   } catch (error) {
     console.error('Error generating blink:', error);
