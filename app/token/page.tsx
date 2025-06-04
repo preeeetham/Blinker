@@ -86,9 +86,7 @@ export default function Page() {
 
         const data = await response.json();
 
-
-        const messageString = `${publicKey.toString() + data.id.toString()}`;
-        const getTransaction = await createTransaction(messageString, 0.01, publicKey.toString());
+        const getTransaction = await data.transaction;
         const  {serializedTransaction, blockhash, lastValidBlockHeight} = getTransaction;
         const transaction = Transaction.from(Buffer.from(serializedTransaction, 'base64'));
         const signature = await sendTransaction(transaction, connection);
@@ -175,7 +173,7 @@ export default function Page() {
   };
 
   const handleTweet = () => {
-    const tweetText = `Check out this Blink I just made using @getblinkdotfun: https://dial.to/?action=solana-action:${blinkLink}`;
+    const tweetText = `Check out this Blink I just made using @blinkergen: https://dial.to/?action=solana-action:${blinkLink}`;
     const twitterUrl = `https://X.com/intent/tweet?text=${encodeURIComponent(tweetText)}`;
     window.open(twitterUrl, '_blank');
   };

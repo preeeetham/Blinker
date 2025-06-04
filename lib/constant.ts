@@ -20,10 +20,10 @@ export async function getAssociatedTokenAddress(
 }
 
 export function createAssociatedTokenAccountInstruction(
-  payer: PublicKey,        
-  associatedTokenAddress: PublicKey,  
-  owner: PublicKey,        
-  mint: PublicKey         
+  payer: PublicKey,        // The payer of the transaction (usually the user)
+  associatedTokenAddress: PublicKey,  // The address of the associated token account
+  owner: PublicKey,        // The owner of the associated token account
+  mint: PublicKey          // The token mint address
 ): TransactionInstruction {
   return new TransactionInstruction({
     keys: [
@@ -36,7 +36,7 @@ export function createAssociatedTokenAccountInstruction(
       { pubkey: ASSOCIATED_TOKEN_PROGRAM_ID, isSigner: false, isWritable: false },
     ],
     programId: ASSOCIATED_TOKEN_PROGRAM_ID,
-    data: Buffer.alloc(0), 
+    data: Buffer.alloc(0),  // The instruction data (empty in this case)
   });
 }
 
@@ -44,4 +44,10 @@ export enum BlinkType {
   lp = "lp",
   tokens = "tokens",
   donate = "donate"
+}
+
+export enum amounts {
+  lp =  parseFloat(process.env.LP_PRICE|| "0.01"),
+  tokens = parseFloat(process.env.TOKEN_PRICE || "0.01"),
+  donate = parseFloat(process.env.DONATE_PRICE || "0.001")
 }

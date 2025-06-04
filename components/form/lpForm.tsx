@@ -142,8 +142,7 @@ const LpForm: React.FC<FormProps> = ({
 
       BlinkData = await response.json();
 
-      const messageString = `${publicKey.toString() + BlinkData.id.toString()}`;
-      const getTransaction = await createTransaction(messageString, 0.01, publicKey.toString());
+      const getTransaction = BlinkData.transaction;
       const  {serializedTransaction, blockhash, lastValidBlockHeight} = getTransaction;
 
       const transaction = Transaction.from(Buffer.from(serializedTransaction, 'base64'));

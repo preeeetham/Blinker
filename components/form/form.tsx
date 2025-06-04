@@ -86,8 +86,7 @@ const Form: React.FC<FormProps> = ({
       window.alert('Failed to generate blink');
       return;
     }
-    const messageString = `${publicKey.toString() + BlinkData.id.toString()}`;
-    const getTransaction = await createTransaction(messageString, 0.001, publicKey.toString());
+    const getTransaction = BlinkData.transaction;
 
     const { serializedTransaction, blockhash, lastValidBlockHeight } = getTransaction;
     const transaction = Transaction.from(Buffer.from(serializedTransaction, 'base64'));

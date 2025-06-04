@@ -4,6 +4,8 @@ import { Connection, PublicKey } from '@solana/web3.js';
 import { programs } from '@metaplex/js';
 import { TokenListProvider, TokenInfo } from '@solana/spl-token-registry';
 import { getMint } from '../../../../../node_modules/@solana/spl-token';
+import { createTransaction } from '@/server/transaction';
+import { amounts } from '@/lib/constant';
 
 const { metadata: { Metadata } } = programs;
 
@@ -166,8 +168,11 @@ export async function POST(req: Request) {
       isPaid: false
     });
     console.log(result.insertedId);
-    const blinkLink = `https://www.blinkgen.xyz/api/actions/tokens/${result.insertedId}`;
-    return NextResponse.json({ blinkLink, id: result.insertedId.toString() });
+
+    const messageString = `${wallet + result.insertedId.toString()}`;
+    const transaction = await  createTransaction(messageString, amounts.donate, wallet);
+
+    return NextResponse.json({ transaction, id: result.insertedId.toString() });
   } catch (error) {
     console.log('Error generating blink:', error);
     return NextResponse.json({ error: 'Failed to generate blink' }, { status: 500 });

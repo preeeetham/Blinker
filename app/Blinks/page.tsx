@@ -67,7 +67,7 @@ export default function Page() {
                       <DataCard
                         code={blink['_id']}
                         base={"https://dial.to/?action=solana-action:"}
-                        title={blink.title}
+                        title={blink.title || `Open a ${blink.poolName} Position`}
                         endpoint={blink.endpoint}
                       />
                     </div>
