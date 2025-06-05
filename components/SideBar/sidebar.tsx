@@ -54,7 +54,7 @@ const Sidebar = () => {
       setInfo("Create a Blink for any Meteora DLMM pool. When shared, this Blink allows others to open spot, curve, or bid-ask positions in the pool")
     }else if(endpoint === 'Blinks'){
       setValue('My Blinks');
-      setInfo('The list of Blinks created by this wallet, using GetBlink.fun')
+      setInfo('The list of Blinks created by this wallet')
     }else if(endpoint === 'prep-trade'){
       setValue('PREP-Trade Blinks');
       setInfo('Create a sharebale Blink that allows others to place PREP trade orders on drift')
@@ -87,7 +87,7 @@ const Sidebar = () => {
       setInfo("Create a Blink for any Meteora DLMM pool. When shared, this Blink allows others to open spot, curve, or bid-ask positions in the pool")
     }else if(href === '/Blinks'){
       setValue('My Blinks');
-      setInfo('The list of Blinks created by this wallet, using GetBlink.fun')
+      setInfo('The list of Blinks created by this wallet')
     }else if(href === '/prep-trade'){
       setValue('PREP-Trade Blinks');
       setInfo('Create a sharebale Blink that allows others to place PREP trade orders on drift')
@@ -107,22 +107,19 @@ const Sidebar = () => {
         } sm:w-full sm:max-w-[min(300px,90vw)]`}
       >
         <div>
-        <div
-          className="flex-1 flex flex-col m-4 card
-                     shadow-lg fade-in bg-opacity-90 backdrop-blur-md
-                     cursor-pointer hover:scale-110 ease-in-out duration-500"
-          onClick={()=> window.location.href = '/'}
+       <div
+          className="flex justify-center cursor-pointer hover:scale-105 transition-transform duration-300"
+          onClick={() => window.location.href = '/'}
         >
-          <div className="z-40">
-            <Image
-                src={'/getblink_transparent.png'}
-                width={160}
-                height={160}
-                alt="Logo"
-                className=" bg-transparent"
-              />
-          </div>
+          <Image
+            src="/blinker_logo.png"
+            width={200}
+            height={160}
+            alt="Blinker Logo"
+            className="rounded-lg shadow-xl"
+          />
         </div>
+
 
           <div className="px-[min(5%,20px)] overflow-hidden">
           <div className="h-px w-full bg-gradient-to-r from-transparent via-[var(--border-color)] to-transparent"></div>
@@ -181,36 +178,6 @@ const Sidebar = () => {
               </SideBarButton>
             </div>
           </div>
-        </div>
-
-        <div className="px-[min(5%,20px)] space-y-3 fade-in animation-delay-500 overflow-y-scroll custom-scrollbar">
-          <div className="h-px w-full bg-gradient-to-r from-transparent via-[var(--border-color)] to-transparent mb-4"></div>
-          <a
-            href='https://github.com/shubhiscoding/getblink.fun'
-            target='_blank'
-            className="flex items-center gap-[min(3%,12px)] p-[min(3.5%,14px)] text-[var(--text-secondary)] rounded-xl transition-all duration-300 hover:bg-[var(--hover-bg)] hover:text-[var(--text-color)] hover-lift whitespace-nowrap text-ellipsis overflow-hidden"
-          >
-            <FaGithub className="text-[var(--text-color)]" />
-            <span className="font-medium">Source Code</span>
-          </a>
-
-          <a
-            href='https://x.com/getblinkdotfun'
-            target='_blank'
-            className="flex items-center gap-[min(3%,12px)] p-[min(3.5%,14px)] text-[var(--text-secondary)] rounded-xl transition-all duration-300 hover:bg-[var(--hover-bg)] hover:text-[var(--text-color)] hover-lift whitespace-nowrap text-ellipsis overflow-hidden"
-          >
-            <FaTwitter className="text-[#1DA1F2]" />
-            <span className="font-medium">@getblinkdotfun</span>
-          </a>
-
-          <a
-            href='https://x.com/LookWhatIbuild'
-            target='_blank'
-            className="flex items-center gap-[min(3%,12px)] p-[min(3.5%,14px)] text-[var(--text-secondary)] rounded-xl transition-all duration-300 hover:bg-[var(--hover-bg)] hover:text-[var(--text-color)] hover-lift whitespace-nowrap text-ellipsis overflow-hidden"
-          >
-            <FaHardHat className="text-[var(--text-color)]" />
-            <span className="font-medium">@LookWhatIBuild</span>
-          </a>
         </div>
       </div>
 

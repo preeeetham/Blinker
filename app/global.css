@@ -43,7 +43,7 @@
 
   .dark-mode {
     /* Dark mode - Deep and rich */
-    --bg-color: #0f172a;
+    --bg-color: #000000;
     --card-bg: #1e293b;
     --text-color: #f8fafc;
     --text-secondary: #cbd5e1;
