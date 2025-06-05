@@ -7,7 +7,6 @@ if (!process.env.MONGODB_URI) {
 const uri = process.env.MONGODB_URI;
 const options = {
   ssl: true,
-  useUnifiedTopology: true,
   connectTimeoutMS: 30000,
 };
 
