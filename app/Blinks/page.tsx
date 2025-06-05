@@ -1,9 +1,10 @@
 "use client";
-import { useState, useEffect } from 'react';
-import { useWallet } from '@solana/wallet-adapter-react';
-import DataCard from '../../components/DataCard/dataCard';
-import { WalletButton } from '@/components/solana/solana-provider';
-import { Footer } from '@/components/footer';
+
+import { useState, useEffect } from "react";
+import { useWallet } from "@solana/wallet-adapter-react";
+import DataCard from "../../components/DataCard/dataCard";
+import { WalletButton } from "@/components/solana/solana-provider";
+import { Footer } from "@/components/footer";
 
 export default function Page() {
   const { publicKey } = useWallet();
@@ -15,14 +16,16 @@ export default function Page() {
       if (!publicKey) return;
 
       try {
-        const response = await fetch('/api/actions/getBlinks?wallet=' + publicKey.toString());
+        const response = await fetch(
+          "/api/actions/getBlinks?wallet=" + publicKey.toString()
+        );
         const { blinks } = await response.json();
         setData(blinks);
-        console.log('Blinks:', blinks);
+        console.log("Blinks:", blinks);
         setLoading(false);
       } catch (error) {
         setLoading(false);
-        console.error('Error fetching blinks:', error);
+        console.error("Error fetching blinks:", error);
       }
     };
 
@@ -58,24 +61,31 @@ export default function Page() {
             ) : (
               <div className="space-y-4 max-h-[70vh] overflow-y-auto minimal-scrollbar pr-1">
                 {data && data.length > 0 ? (
-                  data.slice().reverse().map((blink, index) => (
-                    <div
-                      key={blink['_id']}
-                      className="hover-lift fade-in mt-1"
-                      style={{ animationDelay: `${index * 0.1}s` }}
-                    >
-                      <DataCard
-                        code={blink['_id']}
-                        base={"https://dial.to/?action=solana-action:"}
-                        title={blink.title || `Open a ${blink.poolName} Position`}
-                        endpoint={blink.endpoint}
-                      />
-                    </div>
-                  ))
+                  data
+                    .slice()
+                    .reverse()
+                    .map((blink, index) => (
+                      <div
+                        key={blink["_id"]}
+                        className="hover-lift fade-in mt-1"
+                        style={{ animationDelay: `${index * 0.1}s` }}
+                      >
+                        <DataCard
+                          code={blink["_id"]}
+                          base={"https://dial.to/?action=solana-action:"}
+                          title={
+                            blink.title || `Open a ${blink.poolName} Position`
+                          }
+                          endpoint={blink.endpoint}
+                        />
+                      </div>
+                    ))
                 ) : (
                   <div className="text-center py-8 fade-in">
                     <p className="text-[var(--text-secondary)]">No Blinks found</p>
-                    <p className="text-sm mt-2 text-[var(--text-secondary)]">Create your first Blink to get started</p>
+                    <p className="text-sm mt-2 text-[var(--text-secondary)]">
+                      Create your first Blink to get started
+                    </p>
                   </div>
                 )}
               </div>
