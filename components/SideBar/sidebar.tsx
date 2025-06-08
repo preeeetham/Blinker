@@ -49,9 +49,6 @@ const Sidebar = () => {
     }else if(endpoint === 'token'){
       setValue('Sell/ReSell Tokens');
       setInfo("Create a Blink to sell or resell any SPL token. Share it with others so they can easily buy the token.")
-    }else if(endpoint === 'lp'){
-      setValue('LP Blink');
-      setInfo("Create a Blink for any Meteora DLMM pool. When shared, this Blink allows others to open spot, curve, or bid-ask positions in the pool")
     }else if(endpoint === 'Blinks'){
       setValue('My Blinks');
       setInfo('The list of Blinks created by this wallet')
@@ -88,9 +85,6 @@ const Sidebar = () => {
     }else if(href === '/Blinks'){
       setValue('My Blinks');
       setInfo('The list of Blinks created by this wallet')
-    }else if(href === '/prep-trade'){
-      setValue('PREP-Trade Blinks');
-      setInfo('Create a sharebale Blink that allows others to place PREP trade orders on drift')
     }
     console.log('Active Button:', href);
     console.log('value:', value);
@@ -145,17 +139,6 @@ const Sidebar = () => {
               </SideBarButton>
             </div>
 
-            <div className="fade-in animation-delay-500">
-              <SideBarButton
-                href="/lp"
-                icon={<IoWater />}
-                isActive={activeButton === '/lp'}
-                onClick={() => handleButtonClick('/lp')}
-              >
-                LP Blink
-              </SideBarButton>
-            </div>
-
             <div className="fade-in animation-delay-300">
               <SideBarButton
                 href="/Blinks"
@@ -164,17 +147,6 @@ const Sidebar = () => {
                 onClick={() => handleButtonClick('/Blinks')}
               >
                 My Blinks
-              </SideBarButton>
-            </div>
-
-            <div className="fade-in animation-delay-400">
-              <SideBarButton
-                href="/ComingSoon"
-                icon={<HiPresentationChartLine />}
-                isActive={activeButton === '/prep-trade'}
-                onClick={() => handleButtonClick('/prep-trade')}
-              >
-                PREP-Trade Blinks
               </SideBarButton>
             </div>
           </div>
