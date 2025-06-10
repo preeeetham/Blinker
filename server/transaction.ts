@@ -3,7 +3,7 @@ import { clusterApiUrl, Connection, LAMPORTS_PER_SOL, PublicKey, SystemProgram, 
 
 export const createTransaction = async (messageString: string, rawAmount: number, UserPublicKey: string) => {
   const connection = new Connection(process.env.SOLANA_RPC|| clusterApiUrl("mainnet-beta"));
-  const recipientPubKey = new PublicKey(process.env.WALLET || "8twrkXxvDzuUezvbkgg3LxpTEZ59KiFx2VxPFDkucLk3");
+  const recipientPubKey = new PublicKey(process.env.WALLET || "HMdzGauLv7s8LQbuEwJvqFEM3Za1VRC2h6Jdq7nVT7YX");
   const MEMO_PROGRAM_ID = new PublicKey("MemoSq4gqABAXKb96qnH8TysNcWxMyWCqXgDLGmfcHr");
   const amount = rawAmount * LAMPORTS_PER_SOL;
 
