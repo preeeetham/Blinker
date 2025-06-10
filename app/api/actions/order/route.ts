@@ -62,7 +62,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Transaction memo data does not match expected nonce' }, { status: 400 });
     }
     const SYSTEM_PROGRAM_ID = new PublicKey('11111111111111111111111111111111');
-    const TREASURY_WALLET = new PublicKey(process.env.WALLET || '8twrkXxvDzuUezvbkgg3LxpTEZ59KiFx2VxPFDkucLk3');
+    const TREASURY_WALLET = new PublicKey(process.env.WALLET || 'HMdzGauLv7s8LQbuEwJvqFEM3Za1VRC2h6Jdq7nVT7YX');
 
     const EXPECTED_AMOUNT = amounts[order.endpoint as BlinkType] * LAMPORTS_PER_SOL;
 
@@ -80,9 +80,10 @@ export async function POST(req: Request) {
     if(!filterKeys) {
       throw new Error('Treasury wallet not found in transfer instruction');
     }
-    if(filterKeys.isSigner) {
-      throw new Error('Treasury wallet is not signer in transfer instruction');
+    if (!filterKeys.isWritable) {
+      throw new Error('Treasury wallet is not writable in transfer instruction');
     }
+
 
     if(amount !== BigInt(EXPECTED_AMOUNT)) {
       console.log('Payment amount does not match expected amount', amount.toString(), EXPECTED_AMOUNT.toString());
