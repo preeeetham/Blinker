@@ -91,7 +91,7 @@ export async function POST(req: Request) {
 
     const result = await db.collection("blinks").updateOne({ _id: new ObjectId(orderId) }, { $set: { isPaid: true } });
 
-    const blinkLink = `https://www.blinkergen.xyz/api/actions/${order.endpoint}/${orderId}`;
+    const blinkLink = `https://www.blinkgen.xyz/api/actions/${order.endpoint}/${orderId}`;
     return NextResponse.json({ blinkLink });
   } catch (error) {
     console.error('Error generating blink:', error);
