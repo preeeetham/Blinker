@@ -3,18 +3,12 @@
 import React, { useState, useRef } from 'react';
 import { useWallet, useConnection } from '@solana/wallet-adapter-react';
 import { WalletButton } from '../solana/solana-provider';
-import LoadingScreen from '../Loading/loading';
 import {
   PublicKey,
   Transaction,
-  SystemProgram,
-  LAMPORTS_PER_SOL,
-  Connection,
-  clusterApiUrl,
-  TransactionInstruction
 } from '@solana/web3.js';
 import { HiOutlineClipboardCopy, HiOutlineShare } from 'react-icons/hi';
-import { confirmTransaction, createTransaction } from '@/server/transaction';
+import { confirmTransaction } from '@/server/transaction';
 import { Button } from '../ui/button';
 
 interface FormProps {
@@ -45,6 +39,14 @@ const Form: React.FC<FormProps> = ({
   const [loading, setLoading] = useState(false);
   const { connection } = useConnection();
 
+  const renderLoading = () => (
+    <div className="fixed inset-0 z-50 bg-black bg-opacity-50 flex items-center justify-center">
+      <div className="text-white text-lg font-semibold p-4 rounded-lg bg-[var(--card-bg)] border border-[var(--border-color)] shadow-lg">
+        Waiting For Transaction Confirmation...
+      </div>
+    </div>
+  );
+
   const handlePreview = async () => {
     setLoading(true);
     if (!connected || !publicKey) {
@@ -58,7 +60,7 @@ const Form: React.FC<FormProps> = ({
       return;
     }
 
-  let BlinkData;
+    let BlinkData;
     try {
       const walletAddress = publicKey.toString();
       const response = await fetch('/api/actions/generate-blink', {
@@ -86,8 +88,8 @@ const Form: React.FC<FormProps> = ({
       window.alert('Failed to generate blink');
       return;
     }
-    const getTransaction = BlinkData.transaction;
 
+    const getTransaction = BlinkData.transaction;
     const { serializedTransaction, blockhash, lastValidBlockHeight } = getTransaction;
     const transaction = Transaction.from(Buffer.from(serializedTransaction, 'base64'));
 
@@ -101,6 +103,7 @@ const Form: React.FC<FormProps> = ({
         lastValidBlockHeight
       );
       console.log('Transaction confirmed:', confirmation);
+
       const res = await fetch('/api/actions/order', {
         method: 'POST',
         headers: {
@@ -146,7 +149,7 @@ const Form: React.FC<FormProps> = ({
 
   return (
     <div className="w-full max-w-2xl h-full">
-      {loading && <LoadingScreen subtext="Waiting For Transaction Confirmation!!" />}
+      {loading && renderLoading()}
       <div className="md:card md:p-10 h-full" ref={form}>
         {showForm && (
           <div className="space-y-6 h-full">
@@ -196,7 +199,7 @@ const Form: React.FC<FormProps> = ({
               <Button
                 className="py-3 px-6 rounded-xl font-medium cursor-pointer transition-all duration-300 bg-gradient-to-r from-[var(--accent-primary)] to-[var(--accent-secondary)] text-white hover:opacity-90 active:scale-95 flex items-center justify-center gap-2 shadow-md w-full mt-4 text-lg"
                 onClick={handlePreview}
-                disabled={!connected || !title || !icon || !description || title.length <=0 || icon.length <=0}
+                disabled={!connected || !title || !icon || !description || title.length <= 0 || icon.length <= 0}
               >
                 Generate Blink
               </Button>
@@ -220,7 +223,9 @@ const Form: React.FC<FormProps> = ({
               <div className="flex items-center gap-2">
                 <div
                   className="flex-1 p-3 bg-[rgba(0,0,0,0.2)] rounded-lg text-sm overflow-hidden overflow-ellipsis whitespace-nowrap cursor-pointer"
-                  onClick={()=>{window.open(`https://dial.to/?action=solana-action:${blinkLink}`, '_blank', 'noopener');}}>
+                  onClick={() => {
+                    window.open(`https://dial.to/?action=solana-action:${blinkLink}`, '_blank', 'noopener');
+                  }}>
                   https://dial.to/?action=solana-action:{blinkLink}
                 </div>
                 <button
