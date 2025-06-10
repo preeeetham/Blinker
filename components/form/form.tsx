@@ -3,6 +3,7 @@
 import React, { useState, useRef } from 'react';
 import { useWallet, useConnection } from '@solana/wallet-adapter-react';
 import { WalletButton } from '../solana/solana-provider';
+import LoadingScreen from '../Loading/loading';
 import {
   PublicKey,
   Transaction,
@@ -144,121 +145,115 @@ const Form: React.FC<FormProps> = ({
   };
 
   return (
-  <div className="w-full max-w-2xl h-full">
-    <div className="md:card md:p-10 h-full" ref={form}>
-      {showForm && (
-        <div className="space-y-6 h-full">
-          <h1 className="text-2xl md:text-3xl font-bold mb-6 gradient-text">
-            Customize Your Blink
-          </h1>
+    <div className="w-full max-w-2xl h-full">
+      {loading && <LoadingScreen subtext="Waiting For Transaction Confirmation!!" />}
+      <div className="md:card md:p-10 h-full" ref={form}>
+        {showForm && (
+          <div className="space-y-6 h-full">
+            <h1 className="text-2xl md:text-3xl font-bold mb-6 gradient-text">
+              Customize Your Blink
+            </h1>
 
-          {loading && (
-            <div className="flex items-center gap-2 mb-4 text-sm text-[var(--text-secondary)]">
-              <svg className="animate-spin h-4 w-4 text-[var(--accent-primary)]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4l3-3-3-3v4a8 8 0 01-8 8z" />
-              </svg>
-              Generating your blink... please wait.
+            <div>
+              <label className="block text-sm font-medium mb-2 text-[var(--text-secondary)]">Title</label>
+              <input
+                type="text"
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                className="input-field"
+                placeholder="Enter a title for your Blink"
+                maxLength={50}
+              />
             </div>
-          )}
 
-          {/* Title Input */}
-          <div>
-            <label className="block text-sm font-medium mb-2 text-[var(--text-secondary)]">Title</label>
-            <input
-              type="text"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              className="input-field"
-              placeholder="Enter a title for your Blink"
-              maxLength={50}
-            />
-          </div>
-
-          {/* Image URL Input */}
-          <div>
-            <label className="block text-sm font-medium mb-2 text-[var(--text-secondary)]">Image URL</label>
-            <input
-              type="text"
-              value={icon}
-              onChange={(e) => setIcon(e.target.value)}
-              className="input-field"
-              placeholder="Enter image URL"
-            />
-          </div>
-
-          {/* Description Input */}
-          <div>
-            <label className="block text-sm font-medium mb-2 text-[var(--text-secondary)]">Description</label>
-            <textarea
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              className="textarea-field"
-              rows={3}
-              placeholder="Enter a description"
-              maxLength={143}
-            />
-            <p className="text-xs text-[var(--text-secondary)] mt-1">
-              {description.length}/143 characters
-            </p>
-          </div>
-
-          {publicKey ? (
-            <Button
-              className="py-3 px-6 rounded-xl font-medium cursor-pointer transition-all duration-300 bg-gradient-to-r from-[var(--accent-primary)] to-[var(--accent-secondary)] text-white hover:opacity-90 active:scale-95 flex items-center justify-center gap-2 shadow-md w-full mt-4 text-lg"
-              onClick={handlePreview}
-              disabled={loading || !connected || !title || !icon || !description}
-            >
-              Generate Blink
-            </Button>
-          ) : (
-            <div className="mt-4 text-center">
-              <p className="text-[var(--text-secondary)] mb-3">Connect your wallet to generate a Blink</p>
-              <WalletButton />
+            <div>
+              <label className="block text-sm font-medium mb-2 text-[var(--text-secondary)]">Image URL</label>
+              <input
+                type="text"
+                value={icon}
+                onChange={(e) => setIcon(e.target.value)}
+                className="input-field"
+                placeholder="Enter image URL"
+              />
             </div>
-          )}
-        </div>
-      )}
 
-      {!showForm && (
-        <div className="space-y-6">
-          <h1 className="text-2xl md:text-3xl font-bold mb-6 gradient-text">
-            Your Blink is Ready!
-          </h1>
+            <div>
+              <label className="block text-sm font-medium mb-2 text-[var(--text-secondary)]">Description</label>
+              <textarea
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                className="textarea-field"
+                rows={3}
+                placeholder="Enter a description"
+                maxLength={143}
+              />
+              <p className="text-xs text-[var(--text-secondary)] mt-1">
+                {description.length}/143 characters
+              </p>
+            </div>
 
-          <div className="p-4 rounded-xl bg-[var(--card-bg)] border border-[var(--border-color)]">
-            <p className="text-sm text-[var(--text-secondary)] mb-2">Blink Link:</p>
-            <div className="flex items-center gap-2">
-              <div
-                className="flex-1 p-3 bg-[rgba(0,0,0,0.2)] rounded-lg text-sm overflow-hidden overflow-ellipsis whitespace-nowrap cursor-pointer"
-                onClick={()=>{window.open(`https://dial.to/?action=solana-action:${blinkLink}`, '_blank', 'noopener');}}>
-                https://dial.to/?action=solana-action:{blinkLink}
-              </div>
-              <button
-                onClick={handleCopy}
-                className="p-3 rounded-lg bg-[var(--border-color)] hover:bg-[var(--accent-primary)] transition-colors duration-300"
-                title="Copy to clipboard"
+            {publicKey ? (
+              <Button
+                className="py-3 px-6 rounded-xl font-medium cursor-pointer transition-all duration-300 bg-gradient-to-r from-[var(--accent-primary)] to-[var(--accent-secondary)] text-white hover:opacity-90 active:scale-95 flex items-center justify-center gap-2 shadow-md w-full mt-4 text-lg"
+                onClick={handlePreview}
+                disabled={!connected || !title || !icon || !description || title.length <=0 || icon.length <=0}
               >
-                {copied ? 'Copied!' : <HiOutlineClipboardCopy size={20} />}
+                Generate Blink
+              </Button>
+            ) : (
+              <div className="mt-4 text-center">
+                <p className="text-[var(--text-secondary)] mb-3">Connect your wallet to generate a Blink</p>
+                <WalletButton />
+              </div>
+            )}
+          </div>
+        )}
+
+        {!showForm && (
+          <div className="space-y-6">
+            <h1 className="text-2xl md:text-3xl font-bold mb-6 gradient-text">
+              Your Blink is Ready!
+            </h1>
+
+            <div className="p-4 rounded-xl bg-[var(--card-bg)] border border-[var(--border-color)]">
+              <p className="text-sm text-[var(--text-secondary)] mb-2">Blink Link:</p>
+              <div className="flex items-center gap-2">
+                <div
+                  className="flex-1 p-3 bg-[rgba(0,0,0,0.2)] rounded-lg text-sm overflow-hidden overflow-ellipsis whitespace-nowrap cursor-pointer"
+                  onClick={()=>{window.open(`https://dial.to/?action=solana-action:${blinkLink}`, '_blank', 'noopener');}}>
+                  https://dial.to/?action=solana-action:{blinkLink}
+                </div>
+                <button
+                  onClick={handleCopy}
+                  className="p-3 rounded-lg bg-[var(--border-color)] hover:bg-[var(--accent-primary)] transition-colors duration-300"
+                  title="Copy to clipboard"
+                >
+                  {copied ? 'Copied!' : <HiOutlineClipboardCopy size={20} />}
+                </button>
+              </div>
+            </div>
+
+            <div className="flex flex-col sm:flex-row gap-4 mt-6">
+              <button
+                className="button-primary flex-1"
+                onClick={handleTweet}
+              >
+                <HiOutlineShare size={18} className="mr-2" />
+                Share on X
+              </button>
+
+              <button
+                className="button-secondary flex-1"
+                onClick={handleNew}
+              >
+                Create New Blink
               </button>
             </div>
           </div>
-
-          <div className="flex flex-col sm:flex-row gap-4 mt-6">
-            <button className="button-primary flex-1" onClick={handleTweet}>
-              <HiOutlineShare size={18} className="mr-2" />
-              Share on X
-            </button>
-
-            <button className="button-secondary flex-1" onClick={handleNew}>
-              Create New Blink
-            </button>
-          </div>
-        </div>
-      )}
+        )}
+      </div>
     </div>
-  </div>
-);
+  );
 };
 
 export default Form;
