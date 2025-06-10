@@ -15,7 +15,7 @@ interface DataProps {
 const DataCard: React.FC<DataProps> = ({ base, code, title, endpoint }) => {
     const [copied, setCopied] = useState(false);
     const { toast } = useToast();
-    const blinkLink = `https://www.getblink.fun/api/actions/${endpoint}/${code}`;
+    const blinkLink = `https://www.blinkgen.xyz/api/actions/${endpoint}/${code}`;
 
     const handleCopy = () => {
       navigator.clipboard.writeText(`${base}${blinkLink}`);
