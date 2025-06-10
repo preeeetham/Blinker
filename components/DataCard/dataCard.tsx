@@ -29,7 +29,7 @@ const DataCard: React.FC<DataProps> = ({ base, code, title, endpoint }) => {
     };
 
     const handleTweet = () => {
-      const tweetText = `Check out this Blink I just made using (https://blinkgen.xyz): ${base}${blinkLink}`;
+      const tweetText = `Check out this Blink I just made using blinkgen.xyz: ${base}${blinkLink}`;
       const twitterUrl = `https://X.com/intent/tweet?text=${encodeURIComponent(tweetText)}`;
       window.open(twitterUrl, '_blank');
     };
