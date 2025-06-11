@@ -23,7 +23,7 @@ export default function Page() {
   const [mint, setMint] = useState<string>('');
   const [showPreview, setShowPreview] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [loadingText, setLoadingText] = useState('Doing some magic...');
+  const [loadingText, setLoadingText] = useState('Please Wait!!');
   const [showForm, setShowForm] = useState(true);
   const [blinkLink, setBlinkLink] = useState('');
   const [copied, setCopied] = useState(false);
@@ -42,7 +42,7 @@ export default function Page() {
 
   const handleSubmit = async () => {
     setLoading(true);
-    setLoadingText('Cooking up your transaction...');
+    setLoadingText('Waiting for Transaction confirmation!!');
     try {
       if (!connected || !publicKey) {
         window.alert('Please connect your wallet first');
@@ -63,23 +63,28 @@ export default function Page() {
           wallet: publicKey.toString(),
           mint,
           commission: takeCommission,
-          percentage,
+          percentage: percentage,
         }),
       });
 
       if (!response.ok) throw new Error('Failed to generate blink');
+
       const data = await response.json();
-      const { serializedTransaction, blockhash, lastValidBlockHeight } = data.transaction;
+      const getTransaction = await data.transaction;
+      const { serializedTransaction, blockhash, lastValidBlockHeight } = getTransaction;
 
       const transaction = Transaction.from(Buffer.from(serializedTransaction, 'base64'));
       const signature = await sendTransaction(transaction, connection);
+
       const confirmation = await confirmTransaction(signature, blockhash, lastValidBlockHeight);
-      console.log('Transaction confirmed:', confirmation);
 
       const res = await fetch('/api/actions/order', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ signature, orderId: data.id.toString() }),
+        body: JSON.stringify({
+          signature,
+          orderId: data.id.toString(),
+        }),
       });
 
       const link = await res.json();
@@ -87,10 +92,10 @@ export default function Page() {
 
       setBlinkLink(link.blinkLink);
       setShowForm(false);
+      setLoading(false);
     } catch (error) {
-      window.alert('Something went wrong. Please try again.');
-      console.error(error);
-    } finally {
+      console.error('Error in handleSubmit:', error);
+      window.alert('Transaction failed or blink generation error. Please try again.');
       setLoading(false);
     }
   };
@@ -98,24 +103,28 @@ export default function Page() {
   const handlePreview = async () => {
     try {
       setLoading(true);
-      setLoadingText('Fetching your Blink preview...');
-      if (!connected || !publicKey) return;
+      setLoadingText('Generating Blink Preview!!');
+      if (!connected || !publicKey) {
+        window.alert('Please connect your wallet');
+        return;
+      }
+
       if (!description || !mint) {
         window.alert('Please fill all fields');
         return;
       }
 
-      const response = await fetch(`/api/actions/generate-blink/token?mint=${mint}`);
+      const response = await fetch('/api/actions/generate-blink/token?mint=' + mint);
       if (!response.ok) throw new Error('Failed to generate preview');
 
       const data = await response.json();
       setShowPreview(true);
       setIcon(data.icon);
       setTitle(data.title);
+      setLoading(false);
     } catch (err) {
-      window.alert('Invalid Mint Address!');
       console.error(err);
-    } finally {
+      window.alert("Invalid Mint Address!!");
       setLoading(false);
     }
   };
@@ -127,7 +136,7 @@ export default function Page() {
   };
 
   const handleTweet = () => {
-    const tweetText = `Check out this Blink I just made using @blinkergen: https://dial.to/?action=solana-action:${blinkLink}`;
+    const tweetText = `Check out this Blink I just made using @getblinkdotfun: https://dial.to/?action=solana-action:${blinkLink}`;
     const twitterUrl = `https://X.com/intent/tweet?text=${encodeURIComponent(tweetText)}`;
     window.open(twitterUrl, '_blank');
   };
@@ -137,14 +146,37 @@ export default function Page() {
   };
 
   return (
-    <div className="flex flex-col md:min-h-screen">
-      <div className="flex-1 flex flex-col md:flex-row items-center md:items-start md:justify-center gap-8 md:p-8 relative">
-        {loading && (
-          <div className="absolute inset-0 z-50 flex items-center justify-center bg-black/60 text-white text-lg font-semibold">
-            {loadingText}
+    <div className="flex flex-col md:min-h-screen relative">
+      {/* Inline loading screen */}
+      {loading && (
+        <div className="absolute inset-0 z-50 bg-black/60 flex items-center justify-center">
+          <div className="bg-white dark:bg-gray-900 rounded-xl p-6 shadow-lg flex flex-col items-center space-y-4">
+            <svg
+              className="animate-spin h-8 w-8 text-[var(--accent-primary)]"
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+            >
+              <circle
+                className="opacity-25"
+                cx="12"
+                cy="12"
+                r="10"
+                stroke="currentColor"
+                strokeWidth="4"
+              />
+              <path
+                className="opacity-75"
+                fill="currentColor"
+                d="M4 12a8 8 0 018-8v8H4z"
+              />
+            </svg>
+            <p className="text-sm text-[var(--text-secondary)]">{loadingText}</p>
           </div>
-        )}
+        </div>
+      )}
 
+      <div className="flex-1 flex flex-col md:flex-row items-center md:items-start md:justify-center gap-8 md:p-8">
         <div className="w-full max-w-2xl">
           <div className="md:card md:p-10" ref={form}>
             {showForm ? (
@@ -174,9 +206,9 @@ export default function Page() {
                   <div className="flex items-center gap-2">
                     <div
                       className="flex-1 p-3 bg-[rgba(0,0,0,0.2)] rounded-lg text-sm overflow-hidden overflow-ellipsis whitespace-nowrap cursor-pointer"
-                      onClick={() =>
-                        window.open(`https://dial.to/?action=solana-action:${blinkLink}`, '_blank')
-                      }
+                      onClick={() => {
+                        window.open(`https://dial.to/?action=solana-action:${blinkLink}`, '_blank');
+                      }}
                     >
                       https://dial.to/?action=solana-action:{blinkLink}
                     </div>
@@ -191,11 +223,18 @@ export default function Page() {
                 </div>
 
                 <div className="flex flex-col sm:flex-row gap-4 mt-6">
-                  <button className="button-primary flex-1 flex items-center justify-center gap-2" onClick={handleTweet}>
+                  <button
+                    className="button-primary flex-1 flex items-center justify-center gap-2"
+                    onClick={handleTweet}
+                  >
                     <HiOutlineShare size={18} />
                     Share on X
                   </button>
-                  <button className="button-secondary flex-1 flex items-center justify-center gap-2" onClick={handleNew}>
+
+                  <button
+                    className="button-secondary flex-1 flex items-center justify-center gap-2"
+                    onClick={handleNew}
+                  >
                     <HiOutlinePlus size={18} />
                     Create New Blink
                   </button>
