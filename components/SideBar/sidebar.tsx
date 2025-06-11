@@ -52,12 +52,8 @@ const Sidebar = () => {
     }else if(endpoint === 'Blinks'){
       setValue('My Blinks');
       setInfo('The list of Blinks created by this wallet')
-    }else if(endpoint === 'prep-trade'){
-      setValue('PREP-Trade Blinks');
-      setInfo('Create a sharebale Blink that allows others to place PREP trade orders on drift')
     }
 
-    // Check if mobile
     const handleResize = () => {
       setIsMobile(window.innerWidth <= 1270);
     };
@@ -79,9 +75,6 @@ const Sidebar = () => {
     }else if(href === '/token'){
       setValue('Sell/ReSell Tokens');
       setInfo("Create a Blink to sell or resell any SPL token. Share it with others so they can easily buy the token.")
-    }else if(href === '/lp'){
-      setValue('LP Blink');
-      setInfo("Create a Blink for any Meteora DLMM pool. When shared, this Blink allows others to open spot, curve, or bid-ask positions in the pool")
     }else if(href === '/Blinks'){
       setValue('My Blinks');
       setInfo('The list of Blinks created by this wallet')
