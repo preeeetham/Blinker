@@ -41,7 +41,6 @@ export function createAssociatedTokenAccountInstruction(
 }
 
 export enum BlinkType {
-  lp = "lp",
   tokens = "tokens",
   donate = "donate"
 }
