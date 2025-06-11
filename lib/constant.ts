@@ -47,7 +47,6 @@ export enum BlinkType {
 }
 
 export enum amounts {
-  lp =  parseFloat(process.env.LP_PRICE|| "0.01"),
   tokens = parseFloat("0.01"),
   donate = parseFloat(process.env.DONATE_PRICE || "0.001")
 }

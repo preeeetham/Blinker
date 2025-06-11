@@ -1,4 +1,5 @@
-"use client";
+'use client';
+
 import { useState, useRef, useEffect } from 'react';
 import { useWallet, useConnection } from '@solana/wallet-adapter-react';
 import TokenPreview from "@/components/preview/token-preview";
@@ -40,23 +41,35 @@ export default function Page() {
     }
   }, [takeCommission]);
 
+  const renderLoading = () => (
+    <div className="fixed inset-0 z-50 bg-black bg-opacity-50 flex items-center justify-center">
+      <div className="text-white text-lg font-semibold p-4 rounded-lg bg-[var(--card-bg)] border border-[var(--border-color)] shadow-lg">
+        {loadingText}
+      </div>
+    </div>
+  );
+
   const handleSubmit = async () => {
     setLoading(true);
     setLoadingText('Waiting for Transaction confirmation!!');
     try {
       if (!connected || !publicKey) {
+        console.error('Wallet not connected or not available');
         window.alert('Please connect your wallet first');
         return;
       }
 
       if (!description || !mint) {
+        console.error('Please fill all fields');
         window.alert('Please fill all fields');
         return;
       }
 
       const response = await fetch('/api/actions/generate-blink/token', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+        },
         body: JSON.stringify({
           label: 'Buy Token',
           description,
@@ -67,20 +80,29 @@ export default function Page() {
         }),
       });
 
-      if (!response.ok) throw new Error('Failed to generate blink');
+      if (!response.ok) {
+        throw new Error('Failed to generate blink');
+      }
 
       const data = await response.json();
-      const getTransaction = await data.transaction;
-      const { serializedTransaction, blockhash, lastValidBlockHeight } = getTransaction;
-
+      const { serializedTransaction, blockhash, lastValidBlockHeight } = data.transaction;
       const transaction = Transaction.from(Buffer.from(serializedTransaction, 'base64'));
-      const signature = await sendTransaction(transaction, connection);
 
-      const confirmation = await confirmTransaction(signature, blockhash, lastValidBlockHeight);
+      const signature = await sendTransaction(transaction, connection);
+      console.log('Transaction sent:', signature);
+
+      const confirmation = await confirmTransaction(
+        signature,
+        blockhash,
+        lastValidBlockHeight
+      );
+      console.log('Transaction confirmed:', confirmation);
 
       const res = await fetch('/api/actions/order', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+        },
         body: JSON.stringify({
           signature,
           orderId: data.id.toString(),
@@ -88,15 +110,17 @@ export default function Page() {
       });
 
       const link = await res.json();
-      if (!link.blinkLink) throw new Error('Failed to generate blink');
+      if (!link.blinkLink) {
+        throw new Error('Failed to generate blink');
+      }
 
       setBlinkLink(link.blinkLink);
       setShowForm(false);
       setLoading(false);
     } catch (error) {
-      console.error('Error in handleSubmit:', error);
-      window.alert('Transaction failed or blink generation error. Please try again.');
       setLoading(false);
+      console.error('Error during submission:', error);
+      window.alert('Transaction failed. Please try again.');
     }
   };
 
@@ -105,17 +129,20 @@ export default function Page() {
       setLoading(true);
       setLoadingText('Generating Blink Preview!!');
       if (!connected || !publicKey) {
-        window.alert('Please connect your wallet');
+        console.error('Wallet not connected');
         return;
       }
 
       if (!description || !mint) {
+        console.error('Please fill all fields');
         window.alert('Please fill all fields');
         return;
       }
 
       const response = await fetch('/api/actions/generate-blink/token?mint=' + mint);
-      if (!response.ok) throw new Error('Failed to generate preview');
+      if (!response.ok) {
+        throw new Error('Failed to generate blink preview');
+      }
 
       const data = await response.json();
       setShowPreview(true);
@@ -123,9 +150,9 @@ export default function Page() {
       setTitle(data.title);
       setLoading(false);
     } catch (err) {
-      console.error(err);
-      window.alert("Invalid Mint Address!!");
       setLoading(false);
+      console.error('Preview error:', err);
+      window.alert("Invalid Mint Address!!");
     }
   };
 
@@ -136,7 +163,7 @@ export default function Page() {
   };
 
   const handleTweet = () => {
-    const tweetText = `Check out this Blink I just made using @getblinkdotfun: https://dial.to/?action=solana-action:${blinkLink}`;
+    const tweetText = `Check out this Blink I just made using blinkgen(dot)xyz : https://dial.to/?action=solana-action:${blinkLink}`;
     const twitterUrl = `https://X.com/intent/tweet?text=${encodeURIComponent(tweetText)}`;
     window.open(twitterUrl, '_blank');
   };
@@ -146,40 +173,13 @@ export default function Page() {
   };
 
   return (
-    <div className="flex flex-col md:min-h-screen relative">
-      {/* Inline loading screen */}
-      {loading && (
-        <div className="absolute inset-0 z-50 bg-black/60 flex items-center justify-center">
-          <div className="bg-white dark:bg-gray-900 rounded-xl p-6 shadow-lg flex flex-col items-center space-y-4">
-            <svg
-              className="animate-spin h-8 w-8 text-[var(--accent-primary)]"
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-            >
-              <circle
-                className="opacity-25"
-                cx="12"
-                cy="12"
-                r="10"
-                stroke="currentColor"
-                strokeWidth="4"
-              />
-              <path
-                className="opacity-75"
-                fill="currentColor"
-                d="M4 12a8 8 0 018-8v8H4z"
-              />
-            </svg>
-            <p className="text-sm text-[var(--text-secondary)]">{loadingText}</p>
-          </div>
-        </div>
-      )}
+    <div className="flex flex-col md:min-h-screen">
+      {loading && renderLoading()}
 
       <div className="flex-1 flex flex-col md:flex-row items-center md:items-start md:justify-center gap-8 md:p-8">
         <div className="w-full max-w-2xl">
           <div className="md:card md:p-10" ref={form}>
-            {showForm ? (
+            {showForm && (
               <TokenForm
                 mint={mint}
                 description={description}
@@ -195,7 +195,9 @@ export default function Page() {
                 connected={connected}
                 publicKey={publicKey}
               />
-            ) : (
+            )}
+
+            {!showForm && (
               <div className="space-y-6">
                 <h1 className="text-2xl md:text-3xl font-bold mb-6 text-gradient bg-gradient-to-r from-[var(--gradient-start)] to-[var(--gradient-end)] bg-clip-text text-transparent">
                   Your Blink is Ready!
@@ -206,9 +208,7 @@ export default function Page() {
                   <div className="flex items-center gap-2">
                     <div
                       className="flex-1 p-3 bg-[rgba(0,0,0,0.2)] rounded-lg text-sm overflow-hidden overflow-ellipsis whitespace-nowrap cursor-pointer"
-                      onClick={() => {
-                        window.open(`https://dial.to/?action=solana-action:${blinkLink}`, '_blank');
-                      }}
+                      onClick={() => window.open(`https://dial.to/?action=solana-action:${blinkLink}`, '_blank')}
                     >
                       https://dial.to/?action=solana-action:{blinkLink}
                     </div>
@@ -223,18 +223,12 @@ export default function Page() {
                 </div>
 
                 <div className="flex flex-col sm:flex-row gap-4 mt-6">
-                  <button
-                    className="button-primary flex-1 flex items-center justify-center gap-2"
-                    onClick={handleTweet}
-                  >
+                  <button className="button-primary flex-1 flex items-center justify-center gap-2" onClick={handleTweet}>
                     <HiOutlineShare size={18} />
                     Share on X
                   </button>
 
-                  <button
-                    className="button-secondary flex-1 flex items-center justify-center gap-2"
-                    onClick={handleNew}
-                  >
+                  <button className="button-secondary flex-1 flex items-center justify-center gap-2" onClick={handleNew}>
                     <HiOutlinePlus size={18} />
                     Create New Blink
                   </button>

@@ -1,8 +1,6 @@
 'use client';
 
 import dynamic from 'next/dynamic';
-
-import { WalletError } from '@solana/wallet-adapter-base';
 import {
   ConnectionProvider,
   WalletProvider,

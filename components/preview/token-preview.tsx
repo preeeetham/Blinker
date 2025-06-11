@@ -73,11 +73,6 @@ const TokenPreview: React.FC<TokenPreviewProps> = ({ icon, description, title })
                     <p className={`text-sm ${isDarkMode ? "text-gray-300" : "text-gray-600"}`}>
                         {description || "Your Description shows up here. Keep it short and simple"}
                     </p>
-                    {/* {label && (
-                        <p className={`font-medium ${isDarkMode ? "text-purple-400" : "text-purple-600"}`}>
-                            {label || "Your Label"}
-                        </p>
-                    )} */}
 
                     {/* SOL Buttons */}
                     <div className="grid grid-cols-2 gap-2 mt-4">

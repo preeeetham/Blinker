@@ -5,7 +5,6 @@ import { FaInfoCircle } from 'react-icons/fa';
 import { PublicKey } from '@solana/web3.js';
 import { Button } from '../ui/button';
 
-// Define commission types for type safety
 type CommissionType = "yes" | "no";
 
 interface TokenFormProps {
