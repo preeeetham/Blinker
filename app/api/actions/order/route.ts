@@ -97,5 +97,4 @@ export async function POST(req: Request) {
   } catch (error) {
     console.error('Error generating blink:', error);
     return NextResponse.json({ error: 'Failed to generate blink' }, { status: 500 });
-  }
-}
+  }}
