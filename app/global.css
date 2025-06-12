@@ -447,3 +447,21 @@
     backdrop-filter: blur(12px);
   }
 }
+
+
+/* globals.css */
+
+.wallet-adapter-button {
+  background: linear-gradient(90deg, #1e3a8a, #6366f1, #a78bfa); /* Dark to light blue/purple */
+  color: white !important;
+  border-radius: 9999px !important; 
+  font-weight: 600;
+  padding: 0.5rem 1rem;
+  transition: all 0.3s ease;
+  border: none;
+}
+
+.wallet-adapter-button:hover {
+  filter: brightness(1.1);
+  transform: scale(1.03);
+}
