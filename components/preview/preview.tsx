@@ -122,7 +122,7 @@ const Preview: React.FC<FormProps> = ({ icon, description, title }) => {
                         />
                         <Button
                             className={isDarkMode
-                                ? "bg-purple-500 hover:bg-purple-600 text-white"
+                                ? "bg-purple-600 hover:bg-purple-700 text-white"
                                 : "bg-purple-600 hover:bg-purple-700 text-white"
                             }
                             onClick={handleClick}
