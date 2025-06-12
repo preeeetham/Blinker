@@ -177,8 +177,11 @@ export default function Page() {
       {loading && renderLoading()}
 
       <div className="flex-1 flex flex-col md:flex-row items-center md:items-start md:justify-center gap-8 md:p-8">
-        <div className="w-full max-w-2xl">
-          <div className="md:card md:p-10" ref={form}>
+        <div className="w-full max-w-lg h-full">
+          <div 
+            className="md:card md:p-10 h-full transition-all duration-300 ease-in-out hover:shadow-[0_0_20px_rgba(255,255,255,0.15)] hover:scale-[1.02] rounded-xl" 
+            ref={form}
+          >
             {showForm && (
               <TokenForm
                 mint={mint}
@@ -199,7 +202,7 @@ export default function Page() {
 
             {!showForm && (
               <div className="space-y-6">
-                <h1 className="text-2xl md:text-3xl font-bold mb-6 text-gradient bg-gradient-to-r from-[var(--gradient-start)] to-[var(--gradient-end)] bg-clip-text text-transparent">
+                <h1 className="text-2xl md:text-3xl font-bold mb-6 gradient-text">
                   Your Blink is Ready!
                 </h1>
 
@@ -239,7 +242,7 @@ export default function Page() {
         </div>
 
         {showForm && (
-          <div className="w-full md:w-auto flex justify-center">
+          <div className="w-full md:w-lg flex justify-center">
             <TokenPreview
               icon={icon || 'solana.jpg'}
               description={description || 'Your Description shows up here, Keep it short and simple'}

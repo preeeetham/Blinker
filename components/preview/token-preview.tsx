@@ -66,12 +66,12 @@ const TokenPreview: React.FC<TokenPreviewProps> = ({ icon, description, title })
                 </div>
 
                 {/* Content Area */}
-                <div className="p-5 space-y-3">
+                <div className="p-1.5 space-y-3">
                     <h3 className={`text-lg font-semibold ${isDarkMode ? "text-white" : "text-gray-800"}`}>
                         {title || "Your Title"}
                     </h3>
                     <p className={`text-sm ${isDarkMode ? "text-gray-300" : "text-gray-600"}`}>
-                        {description || "Your Description shows up here. Keep it short and simple"}
+                        {"Description, Keep it short and simple"}
                     </p>
 
                     {/* SOL Buttons */}
@@ -96,16 +96,6 @@ const TokenPreview: React.FC<TokenPreviewProps> = ({ icon, description, title })
                         </Button>
                     </div>
 
-                    <Button
-                        className={isDarkMode
-                            ? "bg-[#2a1b3d] hover:bg-[#3a2b4d] text-white border-none w-full whitespace-normal"
-                            : "bg-purple-100 hover:bg-purple-200 text-purple-800 border-none w-full whitespace-normal"
-                        }
-                        onClick={handleClick}
-                    >
-                        {title === "Your Title" ? "Buy 1M $Token" : `Buy 1M $${title.slice(4)}`}
-                    </Button>
-
                     {/* Buy Token Input */}
                     <div className="flex gap-2 mt-3">
                         <Input
@@ -118,7 +108,7 @@ const TokenPreview: React.FC<TokenPreviewProps> = ({ icon, description, title })
                         />
                         <Button
                             className={isDarkMode
-                                ? "bg-purple-500 hover:bg-purple-600 text-white"
+                                ? "bg-purple-600 hover:bg-purple-700 text-white"
                                 : "bg-purple-600 hover:bg-purple-700 text-white"
                             }
                             onClick={handleClick}

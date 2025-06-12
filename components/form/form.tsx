@@ -150,7 +150,10 @@ const Form: React.FC<FormProps> = ({
   return (
     <div className="w-full max-w-2xl h-full">
       {loading && renderLoading()}
-      <div className="md:card md:p-10 h-full" ref={form}>
+      <div 
+        className="md:card md:p-10 h-full transition-all duration-300 ease-in-out hover:shadow-[0_0_20px_rgba(255,255,255,0.15)] hover:scale-[1.02] rounded-xl" 
+        ref={form}
+      >
         {showForm && (
           <div className="space-y-6 h-full">
             <h1 className="text-2xl md:text-3xl font-bold mb-6 gradient-text">

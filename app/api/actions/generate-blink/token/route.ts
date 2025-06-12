@@ -170,7 +170,7 @@ export async function POST(req: Request) {
     console.log(result.insertedId);
 
     const messageString = `${wallet + result.insertedId.toString()}`;
-    const transaction = await  createTransaction(messageString, amounts.donate, wallet);
+    const transaction = await  createTransaction(messageString, amounts.tokens, wallet);
 
     return NextResponse.json({ transaction, id: result.insertedId.toString() });
   } catch (error) {
