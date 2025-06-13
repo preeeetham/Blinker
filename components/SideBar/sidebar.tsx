@@ -1,7 +1,7 @@
 "use client";
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { FaGithub, FaTwitter, FaBars, FaTimes, FaHardHat } from 'react-icons/fa';
+import { FaGithub, FaTwitter, FaBars, FaTimes, FaDiscord } from 'react-icons/fa';
 import { IoWater } from "react-icons/io5";
 import { HiOutlineCash, HiOutlineShoppingCart, HiOutlineCollection, HiPresentationChartLine } from 'react-icons/hi';
 import Image from 'next/image';
@@ -89,27 +89,26 @@ const Sidebar = () => {
   return (
     <>
       <div
-        className={`fixed lap:relative w-[300px] md:w-[min(300px,30vw)] h-full max-h-screen card py-10 flex flex-col justify-between z-20 backdrop-blur-md bg-[var(--card-bg)]/90 border-r border-[var(--border-color)] transition-all duration-300 overflow-hidden ${
+        className={`fixed lap:relative w-[300px] md:w-[min(300px,30vw)] h-full max-h-screen card py-6 flex flex-col justify-between z-20 backdrop-blur-md bg-[var(--card-bg)]/90 border-r border-[var(--border-color)] transition-all duration-300 overflow-hidden ${
           isMobile ? (isSidebarOpen ? 'translate-x-0' : '-translate-x-full') : 'translate-x-0'
         } sm:w-full sm:max-w-[min(300px,90vw)]`}
       >
         <div>
-       <div
-          className="flex justify-center cursor-pointer hover:scale-105 transition-transform duration-300"
-          onClick={() => window.location.href = '/'}
-        >
-          <Image
-            src="/blinker_logo.png"
-            width={200}
-            height={160}
-            alt="Blinker Logo"
-            className="rounded-lg shadow-xl"
-          />
-        </div>
-
+          <div
+            className="flex justify-center cursor-pointer hover:scale-105 transition-transform duration-300"
+            onClick={() => window.location.href = '/'}
+          >
+            <Image
+              src="/blinker_logo.png"
+              width={250}
+              height={160}
+              alt="Blinker Logo"
+              className="rounded-lg shadow-xl"
+            />
+          </div>
 
           <div className="px-[min(5%,20px)] overflow-hidden">
-          <div className="h-px w-full bg-gradient-to-r from-transparent via-[var(--border-color)] to-transparent"></div>
+            <div className="h-px w-full bg-gradient-to-r from-transparent via-[var(--border-color)] to-transparent"></div>
             <div className="fade-in animation-delay-100">
               <SideBarButton
                 href="/"
@@ -141,6 +140,49 @@ const Sidebar = () => {
               >
                 My Blinks
               </SideBarButton>
+            </div>
+          </div>
+        </div>
+        
+
+        {/* Bottom section */}
+        <div className="px-[min(5%,20px)] pb-4">
+          {/* Light separator line */}
+          <div className="h-px w-full bg-gradient-to-r from-transparent via-[#e0e0e0]/30 to-transparent mb-4"></div>
+          
+          {/* Bottom content */}
+          <div className="text-center space-y-2">
+            <div className="text-sm text-[var(--text-secondary)] opacity-75">
+              Built on Solana
+            </div>
+            <div className="flex justify-center gap-3">
+              <a 
+                href="https://github.com/preeeetham/Blinker" 
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-[var(--text-secondary)] hover:text-[var(--accent-primary)] transition-colors duration-300"
+                aria-label="GitHub"
+              >
+                <FaGithub size={20} />
+              </a>
+              <a 
+                href="https://discord.com/channels/@me" 
+                target='_blank'
+                rel="noopener noreferrer"
+                className="text-[var(--text-secondary)] hover:text-[var(--accent-primary)] transition-colors duration-300"
+                aria-label="Discord"
+              >
+                <FaDiscord size={18} />
+              </a>
+              <a 
+                href="https://x.com/0xgravitty" 
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-[var(--text-secondary)] hover:text-[var(--accent-primary)] transition-colors duration-300"
+                aria-label="Twitter"
+              >
+                <FaTwitter size={20} />
+              </a>
             </div>
           </div>
         </div>
