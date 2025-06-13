@@ -179,7 +179,7 @@ export default function Page() {
       <div className="flex-1 flex flex-col md:flex-row items-center md:items-start md:justify-center gap-8 md:p-8">
         <div className="w-full max-w-lg h-full">
           <div 
-            className="md:card md:p-10 h-full transition-all duration-300 ease-in-out hover:shadow-[0_0_20px_rgba(255,255,255,0.15)] hover:scale-[1.02] rounded-xl" 
+            className="md:card md:p-10 h-full transition-all duration-300 ease-in-out hover:shadow-[0_0_20px_rgba(255,255,255,0.5)] hover:scale-[1.02] rounded-xl" 
             ref={form}
           >
             {showForm && (
