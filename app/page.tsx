@@ -20,11 +20,6 @@ export default function Index() {
     }
   }, [connected, router])
 
-  // Show loading or nothing while redirecting
-  if (!connected) {
-    return null
-  }
-
   return (
     <div className="flex flex-col md:min-h-screen">
       <div className="flex-1 flex flex-col md:flex-row items-center md:items-start md:justify-center gap-8 md:p-8">
