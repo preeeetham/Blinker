@@ -1,7 +1,7 @@
 "use client";
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { FaGithub, FaTwitter, FaBars, FaTimes, FaDiscord } from 'react-icons/fa';
+import { FaGithub, FaTwitter, FaBars, FaTimes, FaDiscord , FaHeart} from 'react-icons/fa';
 import { IoWater } from "react-icons/io5";
 import { HiOutlineCash, HiOutlineShoppingCart, HiOutlineCollection, HiPresentationChartLine } from 'react-icons/hi';
 import Image from 'next/image';
@@ -99,7 +99,7 @@ const Sidebar = () => {
             onClick={() => window.location.href = '/'}
           >
             <Image
-              src="/blinker_logo.png"
+              src="/blinker-logo.png"
               width={250}
               height={160}
               alt="Blinker Logo"
@@ -152,8 +152,9 @@ const Sidebar = () => {
           
           {/* Bottom content */}
           <div className="text-center space-y-2">
-            <div className="text-sm text-[var(--text-secondary)] opacity-75">
-              Built on Solana
+            <div className="text-sm text-[var(--text-secondary)] opacity-100 gap-2 flex items-center justify-center">
+              Built on Solana 
+              <FaHeart className="text-[var(--accent-primary)] animate-pulse" size={12} />
             </div>
             <div className="flex justify-center gap-3">
               <a 
