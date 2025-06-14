@@ -1,14 +1,29 @@
-"use client";
-import Form from "@/components/form/form";
-import Preview from "@/components/preview/preview";
-import { useState } from "react";
-import { Footer } from "@/components/footer";
+"use client"
+import Form from "@/components/form/form"
+import Preview from "@/components/preview/preview"
+import { useState, useEffect } from "react"
+import { Footer } from "@/components/footer"
+import { useWallet } from "@solana/wallet-adapter-react"
+import { useRouter } from "next/navigation"
 
 export default function Index() {
-  const [icon, setIcon] = useState<string>('');
-  const [description, setDescription] = useState<string>('');
-  const [title, setTitle] = useState<string>('');
-  const [showForm, setShowForm] = useState(true);
+  const [icon, setIcon] = useState<string>("")
+  const [description, setDescription] = useState<string>("")
+  const [title, setTitle] = useState<string>("")
+  const [showForm, setShowForm] = useState(true)
+  const { connected } = useWallet()
+  const router = useRouter()
+
+  useEffect(() => {
+    if (!connected) {
+      router.push("/landing")
+    }
+  }, [connected, router])
+
+  // Show loading or nothing while redirecting
+  if (!connected) {
+    return null
+  }
 
   return (
     <div className="flex flex-col md:min-h-screen">
@@ -23,14 +38,15 @@ export default function Index() {
           showForm={showForm}
           setShowForm={setShowForm}
         />
-        {showForm &&
-        <Preview
-          icon={icon || 'solana.jpg'}
-          description={description || 'Your Description shows up here, Keep it short and simple'}
-          title={title || "Your Title"}
-        />}
+        {showForm && (
+          <Preview
+            icon={icon || "solana.jpg"}
+            description={description || "Your Description shows up here, Keep it short and simple"}
+            title={title || "Your Title"}
+          />
+        )}
       </div>
       <Footer />
     </div>
-  );
+  )
 }

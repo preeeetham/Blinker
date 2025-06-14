@@ -45,6 +45,7 @@
     /* Dark mode - Deep and rich */
     --bg-color: #000000;
     --card-bg: #1e293b;
+    --card-bg-2: #8996b2; /* Slightly lighter for contrast */
     --form-card-bg: #000000;
     --text-color: #ffffff;
     --text-secondary: #cbd5e1;
