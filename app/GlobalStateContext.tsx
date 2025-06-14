@@ -12,7 +12,7 @@ type GlobalTitleContextType = {
 const GlobalTitleContext = createContext<GlobalTitleContextType | undefined>(undefined);
 
 export const GlobalTitleProvider = ({ children }: { children: ReactNode }) => {
-  const [value, setValue] = useState<string>('GetBlink.fun');
+  const [value, setValue] = useState<string>('Request Sol');
   const [info, setInfo] = useState<string>("A website that let's your create blinks on solana");
 
   return (
