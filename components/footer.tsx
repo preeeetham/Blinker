@@ -14,14 +14,6 @@ export function Footer() {
             <span className="text-[var(--border-color)] hidden sm:block">•</span>
             <span>Powering the future of decentralized payments</span>
           </div>
-          <div className="flex justify-center items-center gap-2 text-[var(--text-secondary)] text-sm sm:text-base">
-            <span>Made with</span>
-            <FaHeart className="text-[var(--accent-primary)] animate-pulse" size={12} />
-            <span>on</span>
-            <span className="font-medium gradient-text">
-              Solana
-            </span>
-          </div>
         </div>
       </div>
     </footer>
