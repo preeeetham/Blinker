@@ -1,6 +1,7 @@
 "use client";
 import { ReactNode, useState } from 'react';
 import { WalletButton } from '../solana/solana-provider';
+import { useWallet } from '@solana/wallet-adapter-react';
 import Sidebar from '../SideBar/sidebar';
 import ThemeToggle from './theme-toggle';
 import { useGlobalTitleState } from '@/app/GlobalStateContext';
@@ -12,14 +13,25 @@ import * as Tooltip from '@radix-ui/react-tooltip';
 export function AppLayout({ children }: { children: ReactNode }) {
   const { value, info } = useGlobalTitleState();
   const [isTooltipOpen, setIsTooltipOpen] = useState(false);
+  const { connected } = useWallet();
+
+  // If wallet is not connected, show only the main content (landing page)
+  if (!connected) {
+    return (
+      <div className="h-full w-full">
+        {children}
+      </div>
+    );
+  }
+
+  // If wallet is connected, show full layout with sidebar and header
   return (
     <div className="flex flex-row h-full">
       <div className='md:my-6 lap:mx-6'>
         <Sidebar />
       </div>
-      <div
-        className="flex-1 flex flex-col m-2 md:m-6 card overflow-hidden shadow-lg fade-in bg-opacity-90 backdrop-blur-md"
-      >
+      
+      <div className="flex-1 flex flex-col m-2 md:m-6 card overflow-hidden shadow-lg fade-in bg-opacity-90 backdrop-blur-md">
         <div className="flex flex-col md:flex-row items-center justify-between p-2 md:p-7 border-b border-[var(--border-color)] bg-[var(--card-bg)] backdrop-blur-sm z-40">
           <span className='flex items-start justify-center'>
             <h1

@@ -1,37 +1,50 @@
-"use client";
-import { useState, useEffect } from 'react';
-import { useWallet } from '@solana/wallet-adapter-react';
-import DataCard from '../../components/DataCard/dataCard';
-import { WalletButton } from '@/components/solana/solana-provider';
-import { Footer } from '@/components/footer';
+"use client"
+import { useState, useEffect } from "react"
+import { useWallet } from "@solana/wallet-adapter-react"
+import { useRouter } from "next/navigation"
+import DataCard from "../../components/DataCard/dataCard"
+import { WalletButton } from "@/components/solana/solana-provider"
+import { Footer } from "@/components/footer"
 
 export default function Page() {
-  const { publicKey } = useWallet();
-  const [data, setData] = useState<Array<Record<string, any>>>([]);
-  const [loading, setLoading] = useState(true);
+  const { publicKey, connected } = useWallet()
+  const router = useRouter()
+  const [data, setData] = useState<Array<Record<string, any>>>([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    if (!connected) {
+      router.push("/landing")
+    }
+  }, [connected, router])
 
   useEffect(() => {
     const getBlinks = async () => {
-      if (!publicKey) return;
+      if (!publicKey) return
 
       try {
-        const response = await fetch('/api/actions/getBlinks?wallet=' + publicKey.toString());
-        const { blinks } = await response.json();
-        setData(blinks);
-        console.log('Blinks:', blinks);
-        setLoading(false);
+        const response = await fetch("/api/actions/getBlinks?wallet=" + publicKey.toString())
+        const { blinks } = await response.json()
+        setData(blinks)
+        console.log("Blinks:", blinks)
+        setLoading(false)
       } catch (error) {
-        setLoading(false);
-        console.error('Error fetching blinks:', error);
+        setLoading(false)
+        console.error("Error fetching blinks:", error)
       }
-    };
+    }
 
     if (publicKey) {
-      getBlinks();
+      getBlinks()
     } else {
-      setLoading(false);
+      setLoading(false)
     }
-  }, [publicKey]);
+  }, [publicKey])
+
+  // Show loading or nothing while redirecting
+  if (!connected) {
+    return null
+  }
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -44,9 +57,7 @@ export default function Page() {
 
             {!publicKey ? (
               <div className="flex flex-col items-center justify-center py-10 space-y-4 fade-in">
-                <p className="text-[var(--text-secondary)] text-center mb-4">
-                  Connect your wallet to view your Blinks
-                </p>
+                <p className="text-[var(--text-secondary)] text-center mb-4">Connect your wallet to view your Blinks</p>
                 <div className="pulse-subtle">
                   <WalletButton />
                 </div>
@@ -58,20 +69,23 @@ export default function Page() {
             ) : (
               <div className="space-y-4 max-h-[70vh] overflow-y-auto minimal-scrollbar pr-1">
                 {data && data.length > 0 ? (
-                  data.slice().reverse().map((blink, index) => (
-                    <div
-                      key={blink['_id']}
-                      className="hover-lift fade-in mt-1"
-                      style={{ animationDelay: `${index * 0.1}s` }}
-                    >
-                      <DataCard
-                        code={blink['_id']}
-                        base={"https://dial.to/?action=solana-action:"}
-                        title={blink.title || `Open a ${blink.poolName} Position`}
-                        endpoint={blink.endpoint}
-                      />
-                    </div>
-                  ))
+                  data
+                    .slice()
+                    .reverse()
+                    .map((blink, index) => (
+                      <div
+                        key={blink["_id"]}
+                        className="hover-lift fade-in mt-1"
+                        style={{ animationDelay: `${index * 0.1}s` }}
+                      >
+                        <DataCard
+                          code={blink["_id"]}
+                          base={"https://dial.to/?action=solana-action:"}
+                          title={blink.title || `Open a ${blink.poolName} Position`}
+                          endpoint={blink.endpoint}
+                        />
+                      </div>
+                    ))
                 ) : (
                   <div className="text-center py-8 fade-in">
                     <p className="text-[var(--text-secondary)]">No Blinks found</p>
@@ -85,5 +99,5 @@ export default function Page() {
       </main>
       <Footer />
     </div>
-  );
+  )
 }
