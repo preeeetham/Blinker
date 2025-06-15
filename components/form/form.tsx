@@ -7,7 +7,7 @@ import {
   PublicKey,
   Transaction,
 } from '@solana/web3.js';
-import { HiOutlineClipboardCopy, HiOutlineShare } from 'react-icons/hi';
+import { HiOutlineClipboardCopy, HiOutlineShare, HiExclamation, HiX } from 'react-icons/hi';
 import { confirmTransaction } from '@/server/transaction';
 import { Button } from '../ui/button';
 
@@ -20,6 +20,46 @@ interface FormProps {
   setTitle: (value: string) => void;
   showForm: boolean;
   setShowForm: (value: boolean) => void;
+}
+
+interface ErrorPopupProps {
+  message: string;
+  isVisible: boolean;
+  onClose: () => void;
+}
+
+const ErrorPopup: React.FC<ErrorPopupProps> = ({ message, isVisible, onClose }) => {
+  if (!isVisible) return null
+
+  return (
+    <div className="fixed inset-0 z-50 bg-black bg-opacity-50 flex items-center justify-center p-4">
+      <div className="bg-red-50 border border-red-300 rounded-lg p-4 max-w-md w-full shadow-lg animate-in fade-in duration-200">
+        <div className="flex items-start">
+          <div className="flex-shrink-0">
+            <HiExclamation className="h-5 w-5 text-red-400" />
+          </div>
+          <div className="ml-3 flex-1">
+            <h3 className="text-sm font-medium text-red-800">
+              Error Occurred
+            </h3>
+            <div className="mt-2 text-sm text-red-700">
+              <p>{message}</p>
+            </div>
+          </div>
+          <div className="ml-auto pl-3">
+            <div className="-mx-1.5 -my-1.5">
+              <button
+                onClick={onClose}
+                className="inline-flex rounded-md bg-red-50 p-1.5 text-red-500 hover:bg-red-100 focus:outline-none focus:ring-2 focus:ring-red-600 focus:ring-offset-2 focus:ring-offset-red-50"
+              >
+                <HiX className="h-5 w-5" />
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
 }
 
 const Form: React.FC<FormProps> = ({
@@ -39,6 +79,19 @@ const Form: React.FC<FormProps> = ({
   const [loading, setLoading] = useState(false);
   const { connection } = useConnection();
 
+  const [errorMessage, setErrorMessage] = useState<string>("");
+  const [showError, setShowError] = useState<boolean>(false);
+
+  const showErrorPopup = (message: string): void => {
+    setErrorMessage(message);
+    setShowError(true);
+  };
+
+  const closeErrorPopup = (): void => {
+    setShowError(false);
+    setErrorMessage("");
+  };
+
   const renderLoading = () => (
     <div className="fixed inset-0 z-50 bg-black bg-opacity-50 flex items-center justify-center">
       <div className="text-white text-lg font-semibold p-4 rounded-lg bg-[var(--card-bg)] border border-[var(--border-color)] shadow-lg">
@@ -51,12 +104,15 @@ const Form: React.FC<FormProps> = ({
     setLoading(true);
     if (!connected || !publicKey) {
       console.error('Wallet not connected');
+      showErrorPopup("Please connect your wallet first");
+      setLoading(false);
       return;
     }
 
     if (!icon || !description || !title) {
       console.error('Please fill all fields');
-      window.alert('Please fill all fields');
+      showErrorPopup('Please fill all fields');
+      setLoading(false);
       return;
     }
 
@@ -85,7 +141,7 @@ const Form: React.FC<FormProps> = ({
     } catch (error) {
       setLoading(false);
       console.error('Failed to generate blink', error);
-      window.alert('Failed to generate blink');
+      showErrorPopup('Failed to generate blink');
       return;
     }
 
@@ -126,7 +182,7 @@ const Form: React.FC<FormProps> = ({
     } catch (error) {
       setLoading(false);
       console.error('Failed to send transaction', error);
-      window.alert('Failed to send transaction');
+      showErrorPopup('Failed to send transaction');
       return;
     }
   };
@@ -150,6 +206,13 @@ const Form: React.FC<FormProps> = ({
   return (
     <div className="w-full max-w-2xl h-full">
       {loading && renderLoading()}
+      
+      <ErrorPopup 
+        message={errorMessage}
+        isVisible={showError}
+        onClose={closeErrorPopup}
+      />
+
       <div 
         className="md:card md:p-10 h-full transition-all duration-300 ease-in-out hover:shadow-[0_0_20px_rgba(0,0,255,0.5)] hover:scale-[1.02] rounded-xl" 
         ref={form}
