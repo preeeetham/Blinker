@@ -6,11 +6,51 @@ import { useRouter } from "next/navigation"
 import TokenPreview from "@/components/preview/token-preview"
 import TokenForm from "@/components/form/tokenForm"
 import { Transaction } from "@solana/web3.js"
-import { HiOutlineClipboardCopy, HiOutlineShare, HiOutlinePlus } from "react-icons/hi"
+import { HiOutlineClipboardCopy, HiOutlineShare, HiOutlinePlus, HiX, HiExclamation } from "react-icons/hi"
 import { Footer } from "@/components/footer"
 import { confirmTransaction } from "@/server/transaction"
 
 type CommissionType = "yes" | "no"
+
+interface ErrorPopupProps {
+  message: string;
+  isVisible: boolean;
+  onClose: () => void;
+}
+
+const ErrorPopup: React.FC<ErrorPopupProps> = ({ message, isVisible, onClose }) => {
+  if (!isVisible) return null
+
+  return (
+    <div className="fixed inset-0 z-50 bg-black bg-opacity-50 flex items-center justify-center p-4">
+      <div className="bg-red-50 border border-red-300 rounded-lg p-4 max-w-md w-full shadow-lg animate-in fade-in duration-200">
+        <div className="flex items-start">
+          <div className="flex-shrink-0">
+            <HiExclamation className="h-5 w-5 text-red-400" />
+          </div>
+          <div className="ml-3 flex-1">
+            <h3 className="text-sm font-medium text-red-800">
+              Error Occurred
+            </h3>
+            <div className="mt-2 text-sm text-red-700">
+              <p>{message}</p>
+            </div>
+          </div>
+          <div className="ml-auto pl-3">
+            <div className="-mx-1.5 -my-1.5">
+              <button
+                onClick={onClose}
+                className="inline-flex rounded-md bg-red-50 p-1.5 text-red-500 hover:bg-red-100 focus:outline-none focus:ring-2 focus:ring-red-600 focus:ring-offset-2 focus:ring-offset-red-50"
+              >
+                <HiX className="h-5 w-5" />
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
 
 export default function Page() {
   const { publicKey, connected, sendTransaction } = useWallet()
@@ -27,8 +67,24 @@ export default function Page() {
   const [showForm, setShowForm] = useState(true)
   const [blinkLink, setBlinkLink] = useState("")
   const [copied, setCopied] = useState(false)
+  
+
+  const [errorMessage, setErrorMessage] = useState("")
+  const [showError, setShowError] = useState(false)
+  
   const form = useRef<HTMLDivElement | null>(null)
   const { connection } = useConnection()
+
+
+  const showErrorPopup = (message: string) => {
+    setErrorMessage(message)
+    setShowError(true)
+  }
+
+  const closeErrorPopup = () => {
+    setShowError(false)
+    setErrorMessage("")
+  }
 
   useEffect(() => {
     if (!connected) {
@@ -65,13 +121,15 @@ export default function Page() {
     try {
       if (!connected || !publicKey) {
         console.error("Wallet not connected or not available")
-        window.alert("Please connect your wallet first")
+        showErrorPopup("Please connect your wallet first")
+        setLoading(false)
         return
       }
 
       if (!description || !mint) {
         console.error("Please fill all fields")
-        window.alert("Please fill all fields")
+        showErrorPopup("Please fill all fields")
+        setLoading(false)
         return
       }
 
@@ -126,7 +184,7 @@ export default function Page() {
     } catch (error) {
       setLoading(false)
       console.error("Error during submission:", error)
-      window.alert("Transaction failed. Please try again.")
+      showErrorPopup("Transaction failed. Please try again.")
     }
   }
 
@@ -136,12 +194,14 @@ export default function Page() {
       setLoadingText("Generating Blink Preview!!")
       if (!connected || !publicKey) {
         console.error("Wallet not connected")
+        setLoading(false)
         return
       }
 
       if (!description || !mint) {
         console.error("Please fill all fields")
-        window.alert("Please fill all fields")
+        showErrorPopup("Please fill all fields")
+        setLoading(false)
         return
       }
 
@@ -158,7 +218,7 @@ export default function Page() {
     } catch (err) {
       setLoading(false)
       console.error("Preview error:", err)
-      window.alert("Invalid Mint Address!!")
+      showErrorPopup("Invalid Mint Address!!")
     }
   }
 
@@ -181,6 +241,12 @@ export default function Page() {
   return (
     <div className="flex flex-col md:min-h-screen">
       {loading && renderLoading()}
+      
+      <ErrorPopup 
+        message={errorMessage}
+        isVisible={showError}
+        onClose={closeErrorPopup}
+      />
 
       <div className="flex-1 flex flex-col md:flex-row items-center md:items-start md:justify-center gap-8 md:p-8">
         <div className="w-full max-w-lg h-full">
