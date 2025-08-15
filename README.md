@@ -1,8 +1,8 @@
-# Blink Creator App
+# Blinker - Solana Blink Creator
 
-## One-Stop Solution for Creating Blinks on Solana
+## 🚀 One-Stop Solution for Creating Blinks on Solana
 
-Blink Creator is a user-friendly React/Next.js web application that allows you to easily create, customize, and share **Blinks** — interactive, Solana-powered micro-actions that can be shared as unique links.
+Blinker is a powerful and user-friendly React/Next.js web application that enables you to effortlessly create, customize, and share **Blinks** — interactive, Solana-powered micro-actions that can be shared as unique links. Transform your Solana interactions into shareable experiences with just a few clicks!
 
 ---
 
@@ -32,13 +32,13 @@ Follow these steps to set up the project locally:
 ### 1. Clone the Repository
 
 ```bash
-https://github.com/preeeetham/Blinker.git
+git clone https://github.com/preeeetham/Blinker.git
 ```
 
 ### 2. Navigate into the Project Directory
 
 ```bash
-cd blinker
+cd Blinker
 ```
 
 ### 3. Install Dependencies
@@ -54,13 +54,22 @@ npm install
 Create a `.env` file in the root of the project with the following variables:
 
 ```env
-SOLANA_RPC_SERVER=""   # Your Solana RPC endpoint URL
-WALLET=""    # Default wallet public key
-METEORA_IMAGE=""    # (Optional) URL for Meteora image
-MONGODB_URI=""  # MongoDB connection URI
+DATABASE_URL="postgresql://username:password@localhost:5432/blinker_db"  # PostgreSQL database connection string
+SOLANA_RPC="https://api.mainnet-beta.solana.com"  # Your Solana RPC endpoint URL
+WALLET="HMdzGauLv7s8LQbuEwJvqFEM3Za1VRC2h6Jdq7nVT7YX"  # Default treasury wallet public key
+NODE_ENV="development"  # Environment mode (development/production)
 ```
 
-### 5. Run the Development Server
+### 5. Set up the Database
+
+Initialize and migrate your PostgreSQL database:
+
+```bash
+npx prisma generate
+npx prisma db push
+```
+
+### 6. Run the Development Server
 
 ```bash
 npm run dev
@@ -88,9 +97,11 @@ Open [http://localhost:3000](http://localhost:3000) in your browser to see the a
 - **Next.js** for server-side rendering and React framework.
 - **Solana Wallet Adapter** for wallet connection and transaction management.
 - **Solana Web3.js SDK** to interact with Solana blockchain.
-- **MongoDB Atlas** as the database to store Blink data.
-- **React Icons** for UI icons.
-- **Tailwind CSS** for styling (optional if you use it).
+- **PostgreSQL** with **Prisma ORM** for database management and Blink data storage.
+- **React Icons** and **Lucide React** for UI icons.
+- **Tailwind CSS** for modern, responsive styling.
+- **Radix UI** for accessible UI components.
+- **Framer Motion** for smooth animations.
 
 ---
 
@@ -99,7 +110,8 @@ Open [http://localhost:3000](http://localhost:3000) in your browser to see the a
 - Ensure your wallet is properly connected and has enough SOL to pay for transaction fees.
 - Make sure your `.env` variables are correctly set.
 - Check your network connection to the Solana RPC server.
-- For database issues, verify the MongoDB URI and network permissions.
+- For database issues, verify the PostgreSQL DATABASE_URL and ensure the database is running.
+- Run `npx prisma db push` if you encounter database schema issues.
 
 ---
 
