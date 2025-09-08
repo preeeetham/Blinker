@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useRef, useEffect } from "react"
+import { useState, useRef, useEffect, useCallback } from "react"
 import { useWallet, useConnection } from "@solana/wallet-adapter-react"
 import { useRouter } from "next/navigation"
 import TokenPreview from "@/components/preview/token-preview"
@@ -9,6 +9,8 @@ import { Transaction } from "@solana/web3.js"
 import { HiOutlineClipboardCopy, HiOutlineShare, HiOutlinePlus, HiX, HiExclamation } from "react-icons/hi"
 import { Footer } from "@/components/footer"
 import { confirmTransaction } from "@/server/transaction"
+import { validateText, validateMintAddress, validatePercentage, sanitizeInput } from "@/lib/validation"
+import { useErrorHandler } from "@/hooks/useErrorHandler"
 
 type CommissionType = "yes" | "no"
 
@@ -69,22 +71,11 @@ export default function Page() {
   const [copied, setCopied] = useState(false)
   
 
-  const [errorMessage, setErrorMessage] = useState("")
-  const [showError, setShowError] = useState(false)
+  const { error, showError, hideError, handleAsyncError } = useErrorHandler()
+  const [validationErrors, setValidationErrors] = useState<Record<string, string>>({})
   
   const form = useRef<HTMLDivElement | null>(null)
   const { connection } = useConnection()
-
-
-  const showErrorPopup = (message: string) => {
-    setErrorMessage(message)
-    setShowError(true)
-  }
-
-  const closeErrorPopup = () => {
-    setShowError(false)
-    setErrorMessage("")
-  }
 
   useEffect(() => {
     if (!connected) {
@@ -102,6 +93,33 @@ export default function Page() {
     }
   }, [takeCommission])
 
+  const validateForm = useCallback(() => {
+    const errors: Record<string, string> = {};
+    
+    // Validate mint address
+    const mintValidation = validateMintAddress(mint);
+    if (!mintValidation.isValid) {
+      errors.mint = mintValidation.error || 'Invalid mint address';
+    }
+
+    // Validate description
+    const descValidation = validateText(description, 143, 'Description');
+    if (!descValidation.isValid) {
+      errors.description = descValidation.error || 'Invalid description';
+    }
+
+    // Validate percentage if commission is enabled
+    if (takeCommission === "yes") {
+      const percentageValidation = validatePercentage(percentage);
+      if (!percentageValidation.isValid) {
+        errors.percentage = percentageValidation.error || 'Invalid percentage';
+      }
+    }
+
+    setValidationErrors(errors);
+    return Object.keys(errors).length === 0;
+  }, [mint, description, percentage, takeCommission]);
+
   // Show loading or nothing while redirecting
   if (!connected) {
     return null
@@ -115,24 +133,27 @@ export default function Page() {
     </div>
   )
 
-  const handleSubmit = async () => {
+  const handleSubmit = useCallback(async () => {
     setLoading(true)
     setLoadingText("Waiting for Transaction confirmation!!")
-    try {
-      if (!connected || !publicKey) {
-        console.error("Wallet not connected or not available")
-        showErrorPopup("Please connect your wallet first")
-        setLoading(false)
-        return
-      }
+    hideError()
+    
+    if (!connected || !publicKey) {
+      showError("Please connect your wallet first")
+      setLoading(false)
+      return
+    }
 
-      if (!description || !mint) {
-        console.error("Please fill all fields")
-        showErrorPopup("Please fill all fields")
-        setLoading(false)
-        return
-      }
+    if (!validateForm()) {
+      setLoading(false)
+      return
+    }
 
+    // Sanitize inputs
+    const sanitizedDescription = sanitizeInput(description);
+    const sanitizedMint = sanitizeInput(mint);
+
+    const result = await handleAsyncError(async () => {
       const response = await fetch("/api/actions/generate-blink/token", {
         method: "POST",
         headers: {
@@ -140,16 +161,17 @@ export default function Page() {
         },
         body: JSON.stringify({
           label: "Buy Token",
-          description,
+          description: sanitizedDescription,
           wallet: publicKey.toString(),
-          mint,
+          mint: sanitizedMint,
           commission: takeCommission,
           percentage: percentage,
         }),
       })
 
       if (!response.ok) {
-        throw new Error("Failed to generate blink")
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || "Failed to generate blink");
       }
 
       const data = await response.json()
@@ -173,54 +195,59 @@ export default function Page() {
         }),
       })
 
+      if (!res.ok) {
+        const errorData = await res.json().catch(() => ({}));
+        throw new Error(errorData.error || "Failed to process payment");
+      }
+
       const link = await res.json()
       if (!link.blinkLink) {
-        throw new Error("Failed to generate blink")
+        throw new Error("Failed to generate blink link")
       }
 
-      setBlinkLink(link.blinkLink)
+      return link;
+    }, "Transaction failed. Please try again.");
+
+    if (result) {
+      setBlinkLink(result.blinkLink)
       setShowForm(false)
-      setLoading(false)
-    } catch (error) {
-      setLoading(false)
-      console.error("Error during submission:", error)
-      showErrorPopup("Transaction failed. Please try again.")
     }
-  }
+    
+    setLoading(false)
+  }, [connected, publicKey, validateForm, handleAsyncError, sendTransaction, connection, hideError, showError, description, mint, takeCommission, percentage]);
 
-  const handlePreview = async () => {
-    try {
-      setLoading(true)
-      setLoadingText("Generating Blink Preview!!")
-      if (!connected || !publicKey) {
-        console.error("Wallet not connected")
-        setLoading(false)
-        return
-      }
+  const handlePreview = useCallback(async () => {
+    setLoading(true)
+    setLoadingText("Generating Blink Preview!!")
+    hideError()
+    
+    if (!connected || !publicKey) {
+      showError("Please connect your wallet first")
+      setLoading(false)
+      return
+    }
 
-      if (!description || !mint) {
-        console.error("Please fill all fields")
-        showErrorPopup("Please fill all fields")
-        setLoading(false)
-        return
-      }
+    if (!validateForm()) {
+      setLoading(false)
+      return
+    }
 
-      const response = await fetch("/api/actions/generate-blink/token?mint=" + mint)
+    const result = await handleAsyncError(async () => {
+      const response = await fetch(`/api/actions/generate-blink/token?mint=${encodeURIComponent(mint)}`)
       if (!response.ok) {
-        throw new Error("Failed to generate blink preview")
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || "Failed to generate blink preview");
       }
 
       const data = await response.json()
       setShowPreview(true)
       setIcon(data.icon)
       setTitle(data.title)
-      setLoading(false)
-    } catch (err) {
-      setLoading(false)
-      console.error("Preview error:", err)
-      showErrorPopup("Invalid Mint Address!!")
-    }
-  }
+      return data;
+    }, "Invalid Mint Address!!");
+
+    setLoading(false)
+  }, [connected, publicKey, validateForm, handleAsyncError, hideError, showError, mint]);
 
   const handleCopy = () => {
     navigator.clipboard.writeText(`https://dial.to/?action=solana-action:${blinkLink}`)
@@ -243,9 +270,9 @@ export default function Page() {
       {loading && renderLoading()}
       
       <ErrorPopup 
-        message={errorMessage}
-        isVisible={showError}
-        onClose={closeErrorPopup}
+        message={error.message}
+        isVisible={error.hasError}
+        onClose={hideError}
       />
 
       <div className="flex-1 flex flex-col md:flex-row items-center md:items-start md:justify-center gap-8 md:p-8">

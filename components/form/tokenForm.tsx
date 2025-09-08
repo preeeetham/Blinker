@@ -1,5 +1,5 @@
 "use client";
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { WalletButton } from '@/components/solana/solana-provider';
 import { FaInfoCircle } from 'react-icons/fa';
 import { PublicKey } from '@solana/web3.js';
@@ -39,27 +39,33 @@ export default function TokenForm({
   publicKey,
 }: TokenFormProps) {
 
-  useEffect(() => {
-    const handleInfoClick = (e: MouseEvent) => {
-      window.alert("If you opt to take a commission, the specified percentage of the total transaction amount will be credited to your wallet. Please note that the maximum commission percentage allowed is 1%.");
-    };
+  const [showCommissionInfo, setShowCommissionInfo] = useState(false);
 
-    document.querySelectorAll('.info-icon').forEach(icon => {
-      icon.addEventListener('click', handleInfoClick as EventListener);
-    });
-
-    return () => {
-      document.querySelectorAll('.info-icon').forEach(icon => {
-        icon.removeEventListener('click', handleInfoClick as EventListener);
-      });
-    };
-  }, []);
+  const handleInfoClick = () => {
+    setShowCommissionInfo(true);
+  };
 
   return (
     <div className="space-y-6">
       <h1 className="text-2xl md:text-3xl font-bold mb-6 text-gradient bg-gradient-to-r from-[var(--gradient-start)] to-[var(--gradient-end)] bg-clip-text text-transparent">
         Sell/Resell Token
       </h1>
+
+      {showCommissionInfo && (
+        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
+          <div className="flex justify-between items-start">
+            <p className="text-sm text-blue-800">
+              If you opt to take a commission, the specified percentage of the total transaction amount will be credited to your wallet. Please note that the maximum commission percentage allowed is 1%.
+            </p>
+            <button
+              onClick={() => setShowCommissionInfo(false)}
+              className="text-blue-600 hover:text-blue-800 ml-2"
+            >
+              ×
+            </button>
+          </div>
+        </div>
+      )}
 
       <div>
         <label className="block text-sm font-medium mb-2 text-[var(--text-secondary)]">Mint Address</label>
@@ -94,7 +100,10 @@ export default function TokenForm({
             <label className="text-sm font-medium text-[var(--text-color)]">
               Take commission
             </label>
-            <FaInfoCircle className="text-[var(--text-secondary)] cursor-pointer info-icon" />
+            <FaInfoCircle 
+              className="text-[var(--text-secondary)] cursor-pointer" 
+              onClick={handleInfoClick}
+            />
           </div>
 
           <div className="flex items-center gap-4">
