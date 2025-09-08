@@ -4,6 +4,7 @@ import { AppLayout } from "@/components/ui/app-layout"
 import { ClusterProvider } from "@/components/cluster/cluster-data-access"
 import { SolanaProvider } from "@/components/solana/solana-provider"
 import { GlobalTitleProvider } from "./GlobalStateContext"
+import { ErrorBoundary } from "@/components/ui/error-boundary"
 
 export const metadata = {
   title: "Blinker",
@@ -34,18 +35,20 @@ export default function RootLayout({
         `}</style>
       </head>
       <body className="bg-[var(--bg-color)] text-[var(--text-color)] overflow-x-hidden transition-colors duration-300 min-h-screen">
-        <GlobalTitleProvider>
-          <ClusterProvider>
-            <SolanaProvider>
-              {/* Check if we're on the landing page */}
-              {typeof window !== "undefined" && window.location.pathname === "/" ? (
-                children
-              ) : (
-                <AppLayout>{children}</AppLayout>
-              )}
-            </SolanaProvider>
-          </ClusterProvider>
-        </GlobalTitleProvider>
+        <ErrorBoundary>
+          <GlobalTitleProvider>
+            <ClusterProvider>
+              <SolanaProvider>
+                {/* Check if we're on the landing page */}
+                {typeof window !== "undefined" && window.location.pathname === "/" ? (
+                  children
+                ) : (
+                  <AppLayout>{children}</AppLayout>
+                )}
+              </SolanaProvider>
+            </ClusterProvider>
+          </GlobalTitleProvider>
+        </ErrorBoundary>
       </body>
     </html>
   )
