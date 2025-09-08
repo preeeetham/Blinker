@@ -1,6 +1,5 @@
-import { ObjectId } from 'mongodb';
 import { NextRequest, NextResponse } from 'next/server';
-import clientPromise from '@/lib/mongodb';
+import { prisma } from '@/lib/prisma';
 import {
   ActionGetResponse,
   ACTIONS_CORS_HEADERS,
@@ -30,12 +29,14 @@ export const GET = async (req: NextRequest, { params }: { params: { uniqueid: st
     const { uniqueid } = params;
     console.log('uniqueid', uniqueid);
 
-    const client = await clientPromise;
-    const db = client.db("Cluster0");
-
     let blinkData;
-    if (ObjectId.isValid(uniqueid)) {
-      blinkData = await db.collection("blinks").findOne({ _id: new ObjectId(uniqueid) });
+    try {
+      blinkData = await prisma.blink.findUnique({ 
+        where: { id: uniqueid } 
+      });
+    } catch (error) {
+      // Invalid ID format, blinkData will remain undefined
+      blinkData = null;
     }
 
 
@@ -112,12 +113,14 @@ export const POST = async (req: NextRequest, { params }: { params: { uniqueid: s
   try {
     const { uniqueid } = params;
 
-    const client = await clientPromise;
-    const db = client.db("Cluster0");
-
     let blinkData;
-    if (ObjectId.isValid(uniqueid)) {
-      blinkData = await db.collection("blinks").findOne({ _id: new ObjectId(uniqueid) });
+    try {
+      blinkData = await prisma.blink.findUnique({ 
+        where: { id: uniqueid } 
+      });
+    } catch (error) {
+      // Invalid ID format, blinkData will remain undefined
+      blinkData = null;
     }
     if(!blinkData){
       throw "Invalid BLINK!!";
@@ -138,7 +141,11 @@ export const POST = async (req: NextRequest, { params }: { params: { uniqueid: s
     const { searchParams } = new URL(req.url);
     const body: ActionPostRequest = await req.json();
 
-    const PUMP_MINT = new PublicKey(blinkData?.mint);
+    if (!blinkData?.mint) {
+      throw new Error('Mint address not found for this blink');
+    }
+
+    const PUMP_MINT = new PublicKey(blinkData.mint);
 
     let account: PublicKey;
     try {
