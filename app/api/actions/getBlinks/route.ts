@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import clientPromise from '@/lib/mongodb';
+import { prisma } from '@/lib/prisma';
 export async function GET(req: Request) {
   try {
     const { searchParams } = new URL(req.url);
@@ -9,16 +9,15 @@ export async function GET(req: Request) {
       return NextResponse.json({ error: 'Missing wallet address in query params' }, { status: 400 });
     }
 
-    const client = await clientPromise;
-    const db = client.db("Cluster0");
-
-    const blinks = await db.collection("blinks").find({
-      wallet,
-      $or: [
-        { isPaid: true },
-        { isPaid: { $exists: false } }
-      ]
-    }).toArray();
+    const blinks = await prisma.blink.findMany({
+      where: {
+        wallet,
+        OR: [
+          { isPaid: true },
+          { isPaid: false }
+        ]
+      }
+    });
 
     if (!blinks.length) {
       return NextResponse.json({ blinks: [] });
