@@ -1,6 +1,5 @@
-import { ObjectId } from 'mongodb';
 import { NextRequest, NextResponse } from 'next/server';
-import clientPromise from '@/lib/mongodb';
+import { prisma } from '@/lib/prisma';
 import { TREASURY_PUBKEY } from "@/lib/constant";
 import {
   ActionGetResponse,
@@ -23,12 +22,14 @@ export const GET = async (req: NextRequest, { params }: { params: { uniqueid: st
     const { uniqueid } = params;
     console.log('uniqueid', uniqueid);
 
-    const client = await clientPromise;
-    const db = client.db("Cluster0");
-
     let blinkData;
-    if (ObjectId.isValid(uniqueid)) {
-      blinkData = await db.collection("blinks").findOne({ _id: new ObjectId(uniqueid) });
+    try {
+      blinkData = await prisma.blink.findUnique({ 
+        where: { id: uniqueid } 
+      });
+    } catch (error) {
+      // Invalid ID format, blinkData will remain undefined
+      blinkData = null;
     }
 
     if(blinkData && blinkData.isPaid === false){
@@ -104,12 +105,14 @@ export const POST = async (req: NextRequest, { params }: { params: { uniqueid: s
   try {
     const { uniqueid } = params;
 
-    const client = await clientPromise;
-    const db = client.db("Cluster0");
-
     let blinkData;
-    if (ObjectId.isValid(uniqueid)) {
-      blinkData = await db.collection("blinks").findOne({ _id: new ObjectId(uniqueid) });
+    try {
+      blinkData = await prisma.blink.findUnique({ 
+        where: { id: uniqueid } 
+      });
+    } catch (error) {
+      // Invalid ID format, blinkData will remain undefined
+      blinkData = null;
     }
 
     if(blinkData && blinkData.isPaid === false){
@@ -148,11 +151,13 @@ export const POST = async (req: NextRequest, { params }: { params: { uniqueid: s
     if (!SOLANA_RPC_URL) throw "Unable to find RPC url...awkward...";
     const connection = new Connection(SOLANA_RPC_URL);
 
+    const toPubkey = blinkData?.wallet ? new PublicKey(blinkData.wallet) : TREASURY_PUBKEY;
+    
     const transaction = new Transaction().add(
       SystemProgram.transfer({
         fromPubkey: account,
         lamports: amount * LAMPORTS_PER_SOL,
-        toPubkey: blinkData? (blinkData.wallet || TREASURY_PUBKEY): TREASURY_PUBKEY,
+        toPubkey: toPubkey,
       }),
     );
     transaction.feePayer = account;
