@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import clientPromise from '@/lib/mongodb';
+import { prisma } from '@/lib/prisma';
 import { Connection, PublicKey } from '@solana/web3.js';
 import { programs } from '@metaplex/js';
 import { TokenListProvider, TokenInfo } from '@solana/spl-token-registry';
@@ -150,29 +150,27 @@ export async function POST(req: Request) {
     const icon = tokenJson.image;
     const title = "BUY " + tokenName;
 
-    const client = await clientPromise;
-    const db = client.db("Cluster0");
-
-    const result = await db.collection("blinks").insertOne({
-      icon,
-      label,
-      description,
-      title,
-      wallet,
-      mint,
-      commission,
-      percentage,
-      decimals,
-      createdAt: new Date(),
-      endpoint: "tokens",
-      isPaid: false
+    const result = await prisma.blink.create({
+      data: {
+        icon,
+        label,
+        description,
+        title,
+        wallet,
+        mint,
+        commission,
+        percentage,
+        decimals,
+        endpoint: "tokens",
+        isPaid: false
+      }
     });
-    console.log(result.insertedId);
+    console.log(result.id);
 
-    const messageString = `${wallet + result.insertedId.toString()}`;
+    const messageString = `${wallet + result.id}`;
     const transaction = await  createTransaction(messageString, amounts.tokens, wallet);
 
-    return NextResponse.json({ transaction, id: result.insertedId.toString() });
+    return NextResponse.json({ transaction, id: result.id });
   } catch (error) {
     console.log('Error generating blink:', error);
     return NextResponse.json({ error: 'Failed to generate blink' }, { status: 500 });
