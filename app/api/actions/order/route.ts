@@ -1,7 +1,6 @@
 import { NextResponse } from 'next/server';
-import clientPromise from '@/lib/mongodb';
+import { prisma } from '@/lib/prisma';
 import { Connection, PublicKey, TransactionMessage, clusterApiUrl, LAMPORTS_PER_SOL } from '@solana/web3.js';
-import { ObjectId } from 'mongodb';
 import { amounts, BlinkType } from '@/lib/constant';
 
 export async function POST(req: Request) {
@@ -48,15 +47,14 @@ export async function POST(req: Request) {
       throw new Error('Transaction not using memo program');
     }
 
-    const client = await clientPromise;
-    const db = client.db("Cluster0");
-
-    const order = await db.collection("blinks").findOne({ _id: new ObjectId(orderId) });
+    const order = await prisma.blink.findUnique({ 
+      where: { id: orderId } 
+    });
     if(!order){
       throw new Error('Order not found');
     }
 
-    const nonce = order.wallet + order._id.toString();
+    const nonce = order.wallet + order.id;
     if (inx.data.toString() !== nonce) {
       console.log('Transaction memo data does not match expected nonce', inx.data.toString(), nonce);
       return NextResponse.json({ error: 'Transaction memo data does not match expected nonce' }, { status: 400 });
@@ -90,7 +88,10 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Payment amount does not match expected amount' }, { status: 400 });
     }
 
-    const result = await db.collection("blinks").updateOne({ _id: new ObjectId(orderId) }, { $set: { isPaid: true } });
+    const result = await prisma.blink.update({
+      where: { id: orderId },
+      data: { isPaid: true }
+    });
 
     const blinkLink = `https://www.blinkgen.xyz/api/actions/${order.endpoint}/${orderId}`;
     return NextResponse.json({ blinkLink });
