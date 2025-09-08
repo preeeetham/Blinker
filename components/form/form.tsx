@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useCallback } from 'react';
 import { useWallet, useConnection } from '@solana/wallet-adapter-react';
 import { WalletButton } from '../solana/solana-provider';
 import {
@@ -10,6 +10,8 @@ import {
 import { HiOutlineClipboardCopy, HiOutlineShare, HiExclamation, HiX } from 'react-icons/hi';
 import { confirmTransaction } from '@/server/transaction';
 import { Button } from '../ui/button';
+import { validateText, validateUrl, sanitizeInput } from '@/lib/validation';
+import { useErrorHandler } from '@/hooks/useErrorHandler';
 
 interface FormProps {
   icon: string;
@@ -78,19 +80,9 @@ const Form: React.FC<FormProps> = ({
   const form = useRef<HTMLDivElement | null>(null);
   const [loading, setLoading] = useState(false);
   const { connection } = useConnection();
+  const { error, showError, hideError, handleAsyncError } = useErrorHandler();
 
-  const [errorMessage, setErrorMessage] = useState<string>("");
-  const [showError, setShowError] = useState<boolean>(false);
-
-  const showErrorPopup = (message: string): void => {
-    setErrorMessage(message);
-    setShowError(true);
-  };
-
-  const closeErrorPopup = (): void => {
-    setShowError(false);
-    setErrorMessage("");
-  };
+  const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
 
   const renderLoading = () => (
     <div className="fixed inset-0 z-50 bg-black bg-opacity-50 flex items-center justify-center">
@@ -100,24 +92,52 @@ const Form: React.FC<FormProps> = ({
     </div>
   );
 
-  const handlePreview = async () => {
+  const validateForm = useCallback(() => {
+    const errors: Record<string, string> = {};
+    
+    // Validate title
+    const titleValidation = validateText(title, 50, 'Title');
+    if (!titleValidation.isValid) {
+      errors.title = titleValidation.error || 'Invalid title';
+    }
+
+    // Validate description
+    const descValidation = validateText(description, 143, 'Description');
+    if (!descValidation.isValid) {
+      errors.description = descValidation.error || 'Invalid description';
+    }
+
+    // Validate icon URL
+    const iconValidation = validateUrl(icon);
+    if (!iconValidation.isValid) {
+      errors.icon = iconValidation.error || 'Invalid image URL';
+    }
+
+    setValidationErrors(errors);
+    return Object.keys(errors).length === 0;
+  }, [title, description, icon]);
+
+  const handlePreview = useCallback(async () => {
     setLoading(true);
+    hideError();
+    
     if (!connected || !publicKey) {
-      console.error('Wallet not connected');
-      showErrorPopup("Please connect your wallet first");
+      showError("Please connect your wallet first");
       setLoading(false);
       return;
     }
 
-    if (!icon || !description || !title) {
-      console.error('Please fill all fields');
-      showErrorPopup('Please fill all fields');
+    if (!validateForm()) {
       setLoading(false);
       return;
     }
 
-    let BlinkData;
-    try {
+    // Sanitize inputs
+    const sanitizedTitle = sanitizeInput(title);
+    const sanitizedDescription = sanitizeInput(description);
+    const sanitizedIcon = sanitizeInput(icon);
+
+    const result = await handleAsyncError(async () => {
       const walletAddress = publicKey.toString();
       const response = await fetch('/api/actions/generate-blink', {
         method: 'POST',
@@ -125,31 +145,34 @@ const Form: React.FC<FormProps> = ({
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          icon,
+          icon: sanitizedIcon,
           label: 'donate Sol',
-          description,
-          title,
+          description: sanitizedDescription,
+          title: sanitizedTitle,
           wallet: walletAddress,
         }),
       });
 
       if (!response.ok) {
-        throw new Error('Failed to generate blink');
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || 'Failed to generate blink');
       }
 
-      BlinkData = await response.json();
-    } catch (error) {
+      return await response.json();
+    }, 'Failed to generate blink');
+
+    if (!result) {
       setLoading(false);
-      console.error('Failed to generate blink', error);
-      showErrorPopup('Failed to generate blink');
       return;
     }
+
+    const BlinkData = result;
 
     const getTransaction = BlinkData.transaction;
     const { serializedTransaction, blockhash, lastValidBlockHeight } = getTransaction;
     const transaction = Transaction.from(Buffer.from(serializedTransaction, 'base64'));
 
-    try {
+    const transactionResult = await handleAsyncError(async () => {
       const signature = await sendTransaction(transaction, connection);
       console.log('Transaction sent:', signature);
 
@@ -171,21 +194,26 @@ const Form: React.FC<FormProps> = ({
         }),
       });
 
-      const link = await res.json();
-      if (!link.blinkLink) {
-        throw new Error('Failed to generate blink');
+      if (!res.ok) {
+        const errorData = await res.json().catch(() => ({}));
+        throw new Error(errorData.error || 'Failed to process payment');
       }
 
-      setBlinkLink(link.blinkLink);
+      const link = await res.json();
+      if (!link.blinkLink) {
+        throw new Error('Failed to generate blink link');
+      }
+
+      return link;
+    }, 'Failed to send transaction');
+
+    if (transactionResult) {
+      setBlinkLink(transactionResult.blinkLink);
       setShowForm(false);
-      setLoading(false);
-    } catch (error) {
-      setLoading(false);
-      console.error('Failed to send transaction', error);
-      showErrorPopup('Failed to send transaction');
-      return;
     }
-  };
+    
+    setLoading(false);
+  }, [connected, publicKey, validateForm, handleAsyncError, sendTransaction, connection, hideError, showError]);
 
   const handleCopy = () => {
     navigator.clipboard.writeText(`https://dial.to/?action=solana-action:${blinkLink}`);
@@ -208,9 +236,9 @@ const Form: React.FC<FormProps> = ({
       {loading && renderLoading()}
       
       <ErrorPopup 
-        message={errorMessage}
-        isVisible={showError}
-        onClose={closeErrorPopup}
+        message={error.message}
+        isVisible={error.hasError}
+        onClose={hideError}
       />
 
       <div 
@@ -228,30 +256,51 @@ const Form: React.FC<FormProps> = ({
               <input
                 type="text"
                 value={title}
-                onChange={(e) => setTitle(e.target.value)}
-                className="input-field"
+                onChange={(e) => {
+                  setTitle(e.target.value);
+                  if (validationErrors.title) {
+                    setValidationErrors(prev => ({ ...prev, title: '' }));
+                  }
+                }}
+                className={`input-field ${validationErrors.title ? 'border-red-500' : ''}`}
                 placeholder="Enter a title for your Blink"
                 maxLength={50}
               />
+              {validationErrors.title && (
+                <p className="text-red-500 text-xs mt-1">{validationErrors.title}</p>
+              )}
             </div>
 
             <div>
               <label className="block text-sm font-medium mb-2 text-[var(--text-secondary)]">Image URL</label>
               <input
-                type="text"
+                type="url"
                 value={icon}
-                onChange={(e) => setIcon(e.target.value)}
-                className="input-field"
+                onChange={(e) => {
+                  setIcon(e.target.value);
+                  if (validationErrors.icon) {
+                    setValidationErrors(prev => ({ ...prev, icon: '' }));
+                  }
+                }}
+                className={`input-field ${validationErrors.icon ? 'border-red-500' : ''}`}
                 placeholder="Enter image URL"
               />
+              {validationErrors.icon && (
+                <p className="text-red-500 text-xs mt-1">{validationErrors.icon}</p>
+              )}
             </div>
 
             <div>
               <label className="block text-sm font-medium mb-2 text-[var(--text-secondary)]">Description</label>
               <textarea
                 value={description}
-                onChange={(e) => setDescription(e.target.value)}
-                className="textarea-field"
+                onChange={(e) => {
+                  setDescription(e.target.value);
+                  if (validationErrors.description) {
+                    setValidationErrors(prev => ({ ...prev, description: '' }));
+                  }
+                }}
+                className={`textarea-field ${validationErrors.description ? 'border-red-500' : ''}`}
                 rows={3}
                 placeholder="Enter a description"
                 maxLength={143}
@@ -259,6 +308,9 @@ const Form: React.FC<FormProps> = ({
               <p className="text-xs text-[var(--text-secondary)] mt-1">
                 {description.length}/143 characters
               </p>
+              {validationErrors.description && (
+                <p className="text-red-500 text-xs mt-1">{validationErrors.description}</p>
+              )}
             </div>
 
             {publicKey ? (

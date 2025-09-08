@@ -23,14 +23,21 @@ export default function Page() {
       if (!publicKey) return
 
       try {
-        const response = await fetch("/api/actions/getBlinks?wallet=" + publicKey.toString())
+        const response = await fetch(`/api/actions/getBlinks?wallet=${encodeURIComponent(publicKey.toString())}`)
+        
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
         const { blinks } = await response.json()
-        setData(blinks)
+        setData(blinks || [])
         console.log("Blinks:", blinks)
         setLoading(false)
       } catch (error) {
         setLoading(false)
         console.error("Error fetching blinks:", error)
+        // Set empty array on error to prevent undefined issues
+        setData([])
       }
     }
 
@@ -79,9 +86,9 @@ export default function Page() {
                         style={{ animationDelay: `${index * 0.1}s` }}
                       >
                         <DataCard
-                          code={blink["_id"]}
+                          code={blink.id || blink["_id"]}
                           base={"https://dial.to/?action=solana-action:"}
-                          title={blink.title || `Open a ${blink.poolName} Position`}
+                          title={blink.title || `Open a ${blink.poolName || 'Token'} Position`}
                           endpoint={blink.endpoint}
                         />
                       </div>

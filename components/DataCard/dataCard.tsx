@@ -15,23 +15,34 @@ interface DataProps {
 const DataCard: React.FC<DataProps> = ({ base, code, title, endpoint }) => {
     const [copied, setCopied] = useState(false);
     const { toast } = useToast();
-    const blinkLink = `https://www.blinkgen.xyz/api/actions/${endpoint}/${code}`;
+    
+    // Construct the proper blink link
+    const blinkLink = `${base}${code}`;
 
-    const handleCopy = () => {
-      navigator.clipboard.writeText(`${base}${blinkLink}`);
-      setCopied(true);
-      toast({
-        title: "Link copied",
-        description: "The link has been copied to your clipboard",
-        duration: 2000,
-      });
-      setTimeout(() => setCopied(false), 1500);
+    const handleCopy = async () => {
+      try {
+        await navigator.clipboard.writeText(blinkLink);
+        setCopied(true);
+        toast({
+          title: "Link copied",
+          description: "The link has been copied to your clipboard",
+          duration: 2000,
+        });
+        setTimeout(() => setCopied(false), 1500);
+      } catch (error) {
+        console.error('Failed to copy to clipboard:', error);
+        toast({
+          title: "Copy failed",
+          description: "Please try copying the link manually",
+          variant: "destructive",
+        });
+      }
     };
 
     const handleTweet = () => {
-      const tweetText = `Check out this Blink I just made using blinkgen(dot)xyz: ${base}${blinkLink}`;
+      const tweetText = `Check out this Blink I just made using blinkgen(dot)xyz: ${blinkLink}`;
       const twitterUrl = `https://X.com/intent/tweet?text=${encodeURIComponent(tweetText)}`;
-      window.open(twitterUrl, '_blank');
+      window.open(twitterUrl, '_blank', 'noopener,noreferrer');
     };
 
     return (
@@ -45,13 +56,13 @@ const DataCard: React.FC<DataProps> = ({ base, code, title, endpoint }) => {
         <CardContent className="space-y-4">
           <div className="p-3 bg-[var(--bg-color)] max-sm:h-12 rounded-lg border border-[var(--border-color)] transition-all duration-300 hover:border-[var(--accent-primary)] group">
             <a
-              href={`${base}${blinkLink}`}
+              href={blinkLink}
               target="_blank"
               className="text-[var(--text-color)] group-hover:text-[var(--accent-primary)] transition-all duration-300 text-sm sm:text-base"
               rel="noopener noreferrer"
             >
               <p className="w-full h-full overflow-hidden whitespace-normal text-ellipsis">
-                {base + base.includes("devnet") ? blinkLink.slice(0, -9)+"..." : blinkLink}
+                {blinkLink.length > 50 ? blinkLink.slice(0, 50) + "..." : blinkLink}
               </p>
             </a>
           </div>
