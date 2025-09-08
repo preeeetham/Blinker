@@ -1,0 +1,31 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Blink {
+  id          String   @id @default(cuid())
+  icon        String
+  label       String
+  description String
+  title       String
+  wallet      String
+  endpoint    String   // "donate" or "tokens"
+  createdAt   DateTime @default(now())
+  isPaid      Boolean  @default(false)
+  
+  // Optional fields for token blinks
+  mint        String?
+  commission  String?
+  percentage  Float?
+  decimals    Int?
+
+  @@map("blinks")
+}
