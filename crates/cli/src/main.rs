@@ -166,7 +166,7 @@ impl Ctx {
             match self.rpc.signature_status(sig).await? {
                 Some(true) => return Ok(()),
                 Some(false) => bail!("transaction {sig} failed on-chain"),
-                None => tokio::time::sleep(Duration::from_millis(400)).await,
+                None => tokio::time::sleep(Duration::from_millis(1500)).await,
             }
         }
         bail!("timed out waiting for {sig}")
