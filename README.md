@@ -25,8 +25,6 @@ Every view, transaction and confirmed payment streams through an event pipeline 
   <img src="docs/architecture.svg" alt="Blinker architecture: wallets call the API; events flow through a bounded pipeline into an on-disk commit log, which the analytics engine replays; a watcher verifies Solana payments and saves them to Postgres" width="860" />
 </p>
 
-<sub>Drawn in Excalidraw — edit <a href="docs/architecture.excalidraw"><code>docs/architecture.excalidraw</code></a> at <a href="https://excalidraw.com">excalidraw.com</a>.</sub>
-
 Every Blinker transaction — creation fees and payments — *mentions the treasury* (payments carry it
 as a read-only reference account, the Solana Pay pattern), so a single websocket subscription sees
 all of them. Three independent paths report each signature; dedup happens in memory, in an
