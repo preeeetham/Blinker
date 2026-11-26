@@ -18,7 +18,11 @@ async fn main() -> anyhow_free::Result {
         .init();
 
     let conf = get_configuration(None)?;
-    let leptos_options = conf.leptos_options;
+    let mut leptos_options = conf.leptos_options;
+    // PaaS hosts (Render, Fly, Railway) tell us which port to bind via $PORT.
+    if let Some(port) = std::env::var("PORT").ok().and_then(|p| p.parse::<u16>().ok()) {
+        leptos_options.site_addr = std::net::SocketAddr::from(([0, 0, 0, 0], port));
+    }
     let addr = leptos_options.site_addr;
     let routes = generate_route_list(App);
 
