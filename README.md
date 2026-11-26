@@ -86,8 +86,10 @@ New → Blueprint → this repo, and Render builds the `Dockerfile` and wires `D
 * The server binds `$PORT` and uses `RENDER_EXTERNAL_URL` for share links, so no host-specific config is needed.
 * The image installs a prebuilt `cargo-leptos` (building it from source exhausts small builders) and caps
   `CARGO_BUILD_JOBS`.
-* On the free plan the container has no persistent disk, so the event log — and therefore analytics —
-  starts empty after each deploy; blinks and payments live in Postgres and are unaffected.
+* On the free plan the container has no persistent disk, so the event log starts empty after each
+  deploy. On startup the server re-announces any blink the log doesn't know (creation, activation and
+  every recorded payment, with original timestamps) from Postgres, so payment analytics survive; only
+  views and action POSTs, which live only in the log, reset.
 * In production it idles at ~14 MiB RSS with 5 threads (`/api/system`, read from `/proc`).
 
 The end-to-end test also runs against the live deployment:

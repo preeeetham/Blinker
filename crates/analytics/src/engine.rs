@@ -261,6 +261,11 @@ impl Engine {
         ids.into_iter().filter_map(|(id, _)| self.summary(id, now_ms)).collect()
     }
 
+    /// Whether the engine has seen this blink's `Created` event.
+    pub fn contains(&self, id: &BlinkId) -> bool {
+        self.blinks.contains_key(id)
+    }
+
     pub fn events_applied(&self) -> u64 {
         self.applied
     }
