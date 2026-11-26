@@ -1,0 +1,29 @@
+[package]
+name = "blinker-solana"
+description = "Dependency-light Solana wire format: keys, PDAs, legacy/v0 message codec, instruction builders and parsers"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[features]
+default = ["signer"]
+# Ed25519 signing (keypairs). Off for the WASM client, which never holds keys.
+signer = ["dep:ed25519-dalek", "dep:rand"]
+
+[dependencies]
+bs58.workspace = true
+base64.workspace = true
+thiserror.workspace = true
+serde.workspace = true
+sha2 = "0.10"
+curve25519-dalek = { version = "4", default-features = false, features = ["alloc"] }
+ed25519-dalek = { version = "2", optional = true }
+rand = { workspace = true, optional = true }
+
+[dev-dependencies]
+criterion.workspace = true
+serde_json.workspace = true
+
+[[bench]]
+name = "wire"
+harness = false

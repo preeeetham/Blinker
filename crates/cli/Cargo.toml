@@ -1,0 +1,23 @@
+[package]
+name = "blinker-cli"
+description = "Dev tooling: wallet setup, test-token minting, scripted blink creation/payment, end-to-end checks"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[[bin]]
+name = "blinker"
+path = "src/main.rs"
+
+[dependencies]
+blinker-solana.workspace = true
+blinker-server.workspace = true
+anyhow.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+tokio.workspace = true
+base64.workspace = true
+bs58.workspace = true
+clap = { version = "4", features = ["derive", "env"] }
+reqwest = { version = "0.12", default-features = false, features = ["json", "rustls-tls"] }
+dotenvy = "0.15"

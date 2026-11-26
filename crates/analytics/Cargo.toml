@@ -1,0 +1,18 @@
+[package]
+name = "blinker-analytics"
+description = "Event codec and in-memory analytics engine: fixed-memory time-bucketed rings and HyperLogLog unique counts"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[dependencies]
+serde.workspace = true
+thiserror.workspace = true
+
+[dev-dependencies]
+criterion.workspace = true
+rand.workspace = true
+
+[[bench]]
+name = "ingest"
+harness = false
