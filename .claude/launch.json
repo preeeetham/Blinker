@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "blinker",
+      "runtimeExecutable": "cargo",
+      "runtimeArgs": ["leptos", "serve"],
+      "port": 3000
+    }
+  ]
+}

@@ -1,0 +1,29 @@
+# Postgres + Blinker on devnet. Needs TREASURY_PUBKEY (see .env.example).
+#   docker compose up --build
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: blinker
+      POSTGRES_PASSWORD: blinker
+      POSTGRES_DB: blinker
+    volumes: [pgdata:/var/lib/postgresql/data]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U blinker"]
+      interval: 2s
+      retries: 30
+  app:
+    build: .
+    depends_on:
+      db: { condition: service_healthy }
+    ports: ["3000:3000"]
+    environment:
+      DATABASE_URL: postgres://blinker:blinker@db:5432/blinker
+      SOLANA_CLUSTER: ${SOLANA_CLUSTER:-devnet}
+      SOLANA_RPC_URL: ${SOLANA_RPC_URL:-https://api.devnet.solana.com}
+      TREASURY_PUBKEY: ${TREASURY_PUBKEY:?set TREASURY_PUBKEY}
+      PUBLIC_URL: ${PUBLIC_URL:-http://localhost:3000}
+    volumes: [events:/data]
+volumes:
+  pgdata:
+  events:

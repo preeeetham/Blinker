@@ -1,0 +1,8 @@
+target
+data
+.keys
+.env
+.env.*
+fuzz/corpus
+fuzz/artifacts
+profiles

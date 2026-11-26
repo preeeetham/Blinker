@@ -1,27 +1,31 @@
-# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+# Rust
+/target/
+**/target/
+/fuzz/corpus/
+/fuzz/artifacts/
+/fuzz/coverage/
 
-# dependencies
-/node_modules
+# Secrets — wallets and env files never leave this machine
+.env
+.env.*
+!.env.example
+/.keys/
+*-keypair.json
+test-wallet.json
 
-# next.js
-/.next/
-/out/
+# Runtime data (event log segments, profiles)
+/data/
+/profiles/
+*.svg.tmp
+flamegraph.svg
+perf.data*
+dhat-heap.json
 
-# production
-/build
+# Python tooling
+__pycache__/
+.venv/
 
-# debug
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-.pnpm-debug.log*
-
-# env files
-.env*
-
-# vercel
-.vercel
-
-# typescript
-*.tsbuildinfo
-next-env.d.tstest-wallet.json
+# OS / editors
+.DS_Store
+.idea/
+.vscode/

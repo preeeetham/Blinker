@@ -1,0 +1,34 @@
+# Render Blueprint: Blinker web service (Docker) + Postgres, on Solana devnet.
+# Dashboard → New → Blueprint → pick this repo/branch.
+services:
+  - type: web
+    name: blinker
+    runtime: docker
+    plan: free
+    branch: rust-rewrite
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /healthz
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: blinker-db
+          property: connectionString
+      - key: SOLANA_CLUSTER
+        value: devnet
+      - key: SOLANA_RPC_URL
+        value: https://api.devnet.solana.com
+      # Public key only — the treasury's secret key never leaves the dev machine.
+      - key: TREASURY_PUBKEY
+        value: 9CadNkjUVt222pyiUbr92UksdrmfZCjAaeyGFarhLvdb
+      - key: RUST_LOG
+        value: info,blinker_server=info
+      # Free instances have no persistent disk: the event log lives in the
+      # container and analytics rebuild from scratch after each deploy.
+      - key: DATA_DIR
+        value: /data
+
+databases:
+  - name: blinker-db
+    plan: free
+    databaseName: blinker
+    user: blinker

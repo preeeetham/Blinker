@@ -1,0 +1,39 @@
+[package]
+name = "blinker-fuzz"
+version = "0.0.0"
+publish = false
+edition = "2024"
+
+[package.metadata]
+cargo-fuzz = true
+
+[dependencies]
+libfuzzer-sys = "0.4"
+blinker-solana = { path = "../crates/solana", default-features = false }
+blinker-analytics = { path = "../crates/analytics" }
+blinker-eventlog = { path = "../crates/eventlog" }
+tempfile = "3"
+
+# Kept out of the main workspace: fuzzing needs nightly + sanitizers.
+[workspace]
+
+[[bin]]
+name = "tx_decode"
+path = "fuzz_targets/tx_decode.rs"
+test = false
+doc = false
+bench = false
+
+[[bin]]
+name = "event_decode"
+path = "fuzz_targets/event_decode.rs"
+test = false
+doc = false
+bench = false
+
+[[bin]]
+name = "log_recovery"
+path = "fuzz_targets/log_recovery.rs"
+test = false
+doc = false
+bench = false

@@ -1,0 +1,36 @@
+[package]
+name = "blinker-server"
+description = "Blinker backend: Solana Actions API, event pipeline, on-chain watcher, payment verifier, metrics"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[dependencies]
+blinker-solana.workspace = true
+blinker-eventlog.workspace = true
+blinker-analytics.workspace = true
+
+anyhow.workspace = true
+thiserror.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+tokio.workspace = true
+tracing.workspace = true
+rand.workspace = true
+base64.workspace = true
+bs58.workspace = true
+
+axum = { version = "0.8", features = ["macros"] }
+tower = "0.5"
+tower-http = { version = "0.6", features = ["cors", "trace", "compression-gzip", "limit", "timeout"] }
+sqlx = { version = "0.8", default-features = false, features = ["runtime-tokio", "tls-rustls", "postgres", "macros", "migrate", "chrono"] }
+chrono = { version = "0.4", features = ["serde"] }
+reqwest = { version = "0.12", default-features = false, features = ["json", "rustls-tls"] }
+tokio-tungstenite = { version = "0.26", features = ["rustls-tls-webpki-roots"] }
+futures-util = "0.3"
+libc = "0.2"
+dotenvy = "0.15"
+tracing-subscriber.workspace = true
+
+[dev-dependencies]
+tempfile = "3"

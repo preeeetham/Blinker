@@ -1,0 +1,18 @@
+[package]
+name = "blinker-eventlog"
+description = "Append-only segmented commit log with CRC framing, group commit, torn-write recovery and tailing readers"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[dependencies]
+crc32fast = "1.5"
+thiserror.workspace = true
+
+[dev-dependencies]
+criterion.workspace = true
+tempfile = "3"
+
+[[bench]]
+name = "append"
+harness = false

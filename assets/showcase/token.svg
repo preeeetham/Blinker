@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 776">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#8b5cf6"/><stop offset="1" stop-color="#0e7490"/></linearGradient>
+    <radialGradient id="glow" cx=".75" cy=".15" r=".75"><stop offset="0" stop-color="#d946ef" stop-opacity=".55"/><stop offset="1" stop-color="#d946ef" stop-opacity="0"/></radialGradient>
+    <pattern id="grid" width="48" height="48" patternUnits="userSpaceOnUse"><path d="M48 0H0v48" fill="none" stroke="#fff" stroke-opacity=".07"/></pattern>
+  </defs>
+  <rect width="1200" height="776" fill="url(#bg)"/>
+  <rect width="1200" height="776" fill="url(#grid)"/>
+  <rect width="1200" height="776" fill="url(#glow)"/>
+  <circle cx="600" cy="388" r="200" fill="#fff" fill-opacity=".08"/>
+  <circle cx="600" cy="388" r="140" fill="#fff" fill-opacity=".1"/>
+  <text x="600" y="388" font-size="190" text-anchor="middle" dominant-baseline="central" font-family="Apple Color Emoji,Segoe UI Emoji,Noto Color Emoji,sans-serif">🪙</text>
+</svg>
