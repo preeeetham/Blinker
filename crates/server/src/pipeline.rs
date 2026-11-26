@@ -67,6 +67,16 @@ impl EventBus {
     }
 }
 
+impl EventBus {
+    /// Emits an event with an explicit timestamp. Used when rebuilding
+    /// analytics from Postgres, so history lands in the right time buckets.
+    pub async fn emit_at(&self, ts_ms: u64, blink: BlinkId, kind: EventKind) {
+        if self.tx.send(Event { ts_ms, blink, kind }).await.is_ok() {
+            Metrics::inc(&self.metrics.c.events_emitted);
+        }
+    }
+}
+
 pub struct Pipeline {
     pub bus: EventBus,
     pub engine: Arc<RwLock<Engine>>,

@@ -167,3 +167,17 @@ pub async fn recent_payments(db: &PgPool, blink: &str, limit: i64) -> Result<Vec
     .fetch_all(db)
     .await?)
 }
+
+pub async fn all_blinks(db: &PgPool) -> Result<Vec<BlinkRow>> {
+    Ok(sqlx::query_as::<_, BlinkRow>("SELECT * FROM blinks ORDER BY created_at").fetch_all(db).await?)
+}
+
+/// Every payment for a blink, oldest first.
+pub async fn payments_for(db: &PgPool, blink: &str) -> Result<Vec<PaymentRow>> {
+    Ok(sqlx::query_as::<_, PaymentRow>(
+        "SELECT signature, payer, amount, slot, created_at FROM payments WHERE blink_id = $1 ORDER BY created_at",
+    )
+    .bind(blink)
+    .fetch_all(db)
+    .await?)
+}

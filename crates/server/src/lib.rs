@@ -7,6 +7,7 @@ pub mod db;
 pub mod metrics;
 pub mod pipeline;
 pub mod procstat;
+pub mod reconcile;
 pub mod rpc;
 pub mod txbuild;
 pub mod verify;
@@ -86,5 +87,13 @@ pub async fn start(cfg: Config) -> Result<(axum::Router, Arc<AppState>)> {
         proc,
         ata_cache,
     });
+    {
+        let st = state.clone();
+        tokio::spawn(async move {
+            if let Err(e) = reconcile::run(&st).await {
+                tracing::warn!("analytics reconciliation failed: {e:#}");
+            }
+        });
+    }
     Ok((api::router(state.clone()), state))
 }
