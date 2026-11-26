@@ -21,25 +21,11 @@ Every view, transaction and confirmed payment streams through an event pipeline 
 
 ## Architecture
 
-```text
- Browser (Leptos/WASM) ──┐                         ┌── Wallets / X unfurlers
-   wallet.js bridge      │  HTTP                    │  GET/POST /api/actions/:id
-                         ▼                          ▼
- ┌────────────────────────── blinker-web (one Tokio process) ───────────────────────────┐
- │  Axum router: SSR pages · JSON API · Solana Actions · /metrics                        │
- │     │ build tx (cached blockhash, no RPC on hot path)        ▲ snapshots (RwLock)     │
- │     ▼                                                        │                        │
- │  EventBus ──bounded mpsc──▶ [writer thread] ──watch(offset)──▶ [consumer thread]      │
- │  views: try_send, shed      batch ≤1024, append,              tail log ≤ committed,   │
- │  others: await (backpressure)  1 fdatasync/batch              fold into Engine        │
- │                                   │                                                    │
- │                         data/events/*.log  (segmented, CRC-framed, replayed on boot)   │
- │                                                                                        │
- │  Watcher: logsSubscribe{mentions: treasury} ─┐                                         │
- │  Client confirm / Actions `next` callback ───┼─▶ Verifier pool ─▶ Postgres + events   │
- │  Backfill: getSignaturesForAddress ──────────┘   (3-level dedup, retry w/ backoff)     │
- └────────────────────────────────────────────────────────────────────────────────────────┘
-```
+<p align="center">
+  <img src="docs/architecture.svg" alt="Blinker architecture: wallets call the API; events flow through a bounded pipeline into an on-disk commit log, which the analytics engine replays; a watcher verifies Solana payments and saves them to Postgres" width="860" />
+</p>
+
+<sub>Drawn in Excalidraw — edit <a href="docs/architecture.excalidraw"><code>docs/architecture.excalidraw</code></a> at <a href="https://excalidraw.com">excalidraw.com</a>.</sub>
 
 Every Blinker transaction — creation fees and payments — *mentions the treasury* (payments carry it
 as a read-only reference account, the Solana Pay pattern), so a single websocket subscription sees
