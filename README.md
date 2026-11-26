@@ -1,126 +1,157 @@
-# Blinker - Solana Blink Creator
+# Blinker ⚡
 
-## 🚀 One-Stop Solution for Creating Blinks on Solana
+**Shareable Solana payment links ("blinks"), written in Rust from the wire format to the pixels.**
 
-Blinker is a powerful and user-friendly React/Next.js web application that enables you to effortlessly create, customize, and share **Blinks** — interactive, Solana-powered micro-actions that can be shared as unique links. Transform your Solana interactions into shareable experiences with just a few clicks!
+Create a blink — title, image, preset amounts, recipient, in SOL or any SPL token — pay a 0.001 SOL
+activation fee, and share the link. Wallets and X render it as one-tap payment buttons (it's a
+spec-compliant [Solana Action](https://solana.com/docs/advanced/actions)), and the Blinker page doubles as a standalone checkout.
+Every view, transaction and confirmed payment streams through an event pipeline into live analytics.
 
----
-
-## What is a Blink?
-
-A **Blink** is a simple, customizable Solana blockchain transaction wrapped in a shareable link. It allows users to perform a specific action on Solana — such as sending a small donation — without requiring them to write any code or manage complex blockchain interactions.
-
-With Blink Creator, anyone can generate their own Blink by specifying an icon, title, description, and wallet address, then share it instantly with others. This lowers the barrier for engaging with blockchain-powered interactions and makes Solana accessible to everyone.
-
----
-
-## Features
-
-- **Wallet Integration:** Connect your Solana wallet seamlessly.
-- **Custom Blink Creation:** Add a title, description, and an image/icon.
-- **One-Click Transaction:** Automatically create and sign Solana transactions.
-- **Instant Blink Link Generation:** Share your Blink via a unique URL.
-- **Copy & Share:** Easily copy the Blink link or share it on social media.
-- **Responsive UI:** Works well on both desktop and mobile devices.
+| | |
+|---|---|
+| **Backend** | Axum + Tokio, Postgres (sqlx) |
+| **Frontend** | Leptos (SSR + WASM hydration), hand-written CSS effects inspired by Aceternity UI |
+| **Solana** | hand-rolled wire format: tx encoding/decoding, PDAs/ATAs, instruction builders — no `solana-sdk` |
+| **Systems** | segmented commit log (group-commit fsync, torn-write recovery), bounded pipeline with backpressure, fixed-memory analytics (HyperLogLog, time rings), resilient websocket watcher, lock-free metrics, `/proc` + `getrusage` telemetry |
+| **Tooling** | criterion benches, cargo-fuzz targets, Python load generator, profiling script, headless CLI wallet + end-to-end test, Docker |
 
 ---
 
-## Getting Started
+## Architecture
 
-Follow these steps to set up the project locally:
+```text
+ Browser (Leptos/WASM) ──┐                         ┌── Wallets / X unfurlers
+   wallet.js bridge      │  HTTP                    │  GET/POST /api/actions/:id
+                         ▼                          ▼
+ ┌────────────────────────── blinker-web (one Tokio process) ───────────────────────────┐
+ │  Axum router: SSR pages · JSON API · Solana Actions · /metrics                        │
+ │     │ build tx (cached blockhash, no RPC on hot path)        ▲ snapshots (RwLock)     │
+ │     ▼                                                        │                        │
+ │  EventBus ──bounded mpsc──▶ [writer thread] ──watch(offset)──▶ [consumer thread]      │
+ │  views: try_send, shed      batch ≤1024, append,              tail log ≤ committed,   │
+ │  others: await (backpressure)  1 fdatasync/batch              fold into Engine        │
+ │                                   │                                                    │
+ │                         data/events/*.log  (segmented, CRC-framed, replayed on boot)   │
+ │                                                                                        │
+ │  Watcher: logsSubscribe{mentions: treasury} ─┐                                         │
+ │  Client confirm / Actions `next` callback ───┼─▶ Verifier pool ─▶ Postgres + events   │
+ │  Backfill: getSignaturesForAddress ──────────┘   (3-level dedup, retry w/ backoff)     │
+ └────────────────────────────────────────────────────────────────────────────────────────┘
+```
 
-### 1. Clone the Repository
+Every Blinker transaction — creation fees and payments — *mentions the treasury* (payments carry it
+as a read-only reference account, the Solana Pay pattern), so a single websocket subscription sees
+all of them. Three independent paths report each signature; dedup happens in memory, in an
+`UPDATE … WHERE status='pending'` and in the `payments.signature` primary key, so each payment is
+counted exactly once.
+
+## Crates
+
+| crate | what it does |
+|---|---|
+| [`crates/solana`](crates/solana) | Compact-u16, legacy/v0 message codec, PDA + ATA derivation (curve check via curve25519), system/memo/SPL-token instruction builders, instruction parser, ed25519 keypairs. Strict decoder: bounded sizes, minimal encodings, no trailing bytes. |
+| [`crates/eventlog`](crates/eventlog) | Append-only segmented commit log. `len|crc32|payload` framing, logical offsets in file names, group commit with configurable fsync policy, torn-tail truncation on open, tailing readers on their own fds, size-based retention, atomic consumer checkpoints. |
+| [`crates/analytics`](crates/analytics) | Fixed-layout binary event codec and the analytics engine: per-blink totals, 60×1-min and 168×1-h rings with lazy epoch reset, 1 KiB HyperLogLog for unique payers, O(n) top-k. |
+| [`crates/server`](crates/server) | Config, JSON-RPC client (retry + jittered backoff), blockhash cache, event pipeline (writer/consumer OS threads), websocket watcher (reconnect, ping/idle detection, backfill), verifier pool, Postgres, metrics, process telemetry, HTTP API. |
+| [`crates/web`](crates/web) | Leptos UI + the main server binary. The only JavaScript is a ~90-line Wallet Standard bridge (`js/wallet.js`) — browser wallets expose a JS-only API. |
+| [`crates/cli`](crates/cli) | `blinker` dev CLI: wallet setup, airdrops, test-token minting, scripted blink creation/payment, full end-to-end test. |
+| [`fuzz`](fuzz) | cargo-fuzz targets: tx decoder (+ canonical re-encode), event codec + engine, log crash recovery. |
+
+## Quick start (local, free SOL)
+
+Needs Rust, Postgres, the Solana CLI (`solana-test-validator`) and `cargo-leptos`.
 
 ```bash
-git clone https://github.com/preeeetham/Blinker.git
+scripts/dev.sh
 ```
 
-### 2. Navigate into the Project Directory
+That creates the `blinker` database, generates wallets in `.keys/` and writes `.env` (both
+gitignored), starts a local validator and runs `cargo leptos watch` on <http://localhost:3000>.
+Then, in another shell, exercise everything without a browser wallet:
 
 ```bash
-cd Blinker
+cargo run -p blinker-cli -- e2e
 ```
 
-### 3. Install Dependencies
-
-Make sure you have Node.js installed (version 18 or above is recommended).
+### Devnet / a real browser wallet
 
 ```bash
-npm install
+cargo run -p blinker-cli -- setup --cluster devnet --database-url postgres://localhost:5432/blinker
 ```
 
-### 4. Configure Environment Variables
+Fund the creator wallet from <https://faucet.solana.com> (the CLI airdrop is often rate-limited),
+switch Phantom/Solflare/Backpack to devnet, and create a blink from the UI. Transactions are signed
+by the wallet and submitted by Blinker to its configured cluster.
 
-Create a `.env` file in the root of the project with the following variables:
-
-```env
-DATABASE_URL="postgresql://username:password@localhost:5432/blinker_db"  # PostgreSQL database connection string
-SOLANA_RPC="https://api.mainnet-beta.solana.com"  # Your Solana RPC endpoint URL
-WALLET="HMdzGauLv7s8LQbuEwJvqFEM3Za1VRC2h6Jdq7nVT7YX"  # Default treasury wallet public key
-NODE_ENV="development"  # Environment mode (development/production)
-```
-
-### 5. Set up the Database
-
-Initialize and migrate your PostgreSQL database:
+### Docker
 
 ```bash
-npx prisma generate
-npx prisma db push
+TREASURY_PUBKEY=<your devnet pubkey> docker compose up --build
 ```
 
-### 6. Run the Development Server
+## Measure it
 
 ```bash
-npm run dev
+scripts/bench.sh                                  # criterion: wire format, log append/replay, analytics ingest
+scripts/fuzz.sh 60                                # each fuzz target for 60s (nightly)
+python3 scripts/loadtest.py --blink <id> --seconds 15 --conns 32 --post-ratio 0.2
+scripts/profile.sh <id>                           # perf/samply + /usr/bin/time under load
+curl localhost:3000/metrics                       # Prometheus text
 ```
 
-Open [http://localhost:3000](http://localhost:3000) in your browser to see the app in action.
+The **System** page (`/system`) shows the same numbers live: CPU% and RSS from `getrusage`/`/proc`,
+queue depth, committed vs. consumer offset, group-commit batch sizes, fsync latency and log2 latency
+histograms for HTTP, action POSTs, RPC, log commits and verification.
 
----
+### Results (Apple M-series laptop, release build, localnet)
 
-## How to Use
+Micro-benchmarks (`scripts/bench.sh`):
 
-1. Connect your Solana wallet using the wallet button.
-2. Fill in the Blink details:
-   - **Title:** A short title for your Blink.
-   - **Image URL:** An icon or image to represent your Blink.
-   - **Description:** A brief description of the action or purpose.
-3. Click **Generate Blink** to create your Blink and send the transaction.
-4. Once the transaction confirms, you will get a unique Blink link.
-5. Copy the link or share it on social platforms directly from the app.
+| what | result |
+|---|---|
+| build SOL payment tx (memo + transfer + base64) | **342 ns** |
+| build SPL payment tx, naive | 19.0 µs |
+| build SPL payment tx, recipient ATA cached | **8.5 µs** (2.2× — PDA derivation was the bottleneck, ~7.8 µs each) |
+| decode transaction (strict) | 147–198 ns (~2 GiB/s) |
+| decode one analytics event | 10.7 ns |
+| analytics ingest (decode + apply, 1k blinks) | **30 M events/s** |
+| log replay (100k records) | 72 M records/s |
+| log append, no fsync, batch 256 | 9.4 M records/s |
+| log append, fsync per commit, batch 1 → 256 | 242 → **61,000 records/s** (group commit amortises a ~4 ms fsync) |
 
----
+Load test (`scripts/loadtest.py`, 32 keep-alive connections, Python client on the same machine):
 
-## Tech Stack
+| scenario | throughput | server CPU | RSS | p99 |
+|---|---|---|---|---|
+| SOL blink, 80% GET / 20% POST | **17,055 req/s**, 0 errors | 1.28 cores (75 µs CPU/request) | **13.9 MiB** | 4.8 ms GET / 6.6 ms POST |
+| SPL blink, 100% POST (tx building) | 13,696 req/s, 0 errors | 1.34 cores | 13.9 MiB | 5.8 ms |
 
-- **Next.js** for server-side rendering and React framework.
-- **Solana Wallet Adapter** for wallet connection and transaction management.
-- **Solana Web3.js SDK** to interact with Solana blockchain.
-- **PostgreSQL** with **Prisma ORM** for database management and Blink data storage.
-- **React Icons** and **Lucide React** for UI icons.
-- **Tailwind CSS** for modern, responsive styling.
-- **Radix UI** for accessible UI components.
-- **Framer Motion** for smooth animations.
+Every one of those requests emitted an event that was **durably fsync'd** to the commit log: 204,645
+events in 3,426 group commits (avg batch 60, max 177), none shed.
 
----
+Fuzzing (`scripts/fuzz.sh 40`): 8.0 M tx-decoder runs, 3.5 M event-codec runs, 3.5 k crash-recovery
+runs — no crashes, and every decoded legacy tx / event re-encodes byte-for-byte.
 
-## Troubleshooting
+## API
 
-- Ensure your wallet is properly connected and has enough SOL to pay for transaction fees.
-- Make sure your `.env` variables are correctly set.
-- Check your network connection to the Solana RPC server.
-- For database issues, verify the PostgreSQL DATABASE_URL and ensure the database is running.
-- Run `npx prisma db push` if you encounter database schema issues.
+| method | path | |
+|---|---|---|
+| GET | `/actions.json` | Actions URL mapping (`/b/*` → `/api/actions/*`) |
+| GET / POST | `/api/actions/:id` | Solana Action metadata / build a payment tx (`?amount=`) |
+| POST | `/api/actions/:id/next` | Actions callback with the signature → fast-path verification |
+| POST | `/api/blinks` | create a blink, returns the unsigned fee tx |
+| POST | `/api/blinks/:id/confirm` | report the fee signature |
+| GET | `/api/blinks/:id` · `/api/blinks?creator=` · `/api/blinks/:id/series` | blink, stats, recent payments, time series |
+| POST | `/api/tx/send` | relay a wallet-signed Blinker tx to the configured cluster |
+| GET | `/api/stats` · `/api/system` · `/metrics` · `/healthz` | analytics, internals, Prometheus |
 
----
+## Tests
 
-## Contributing
-
-Contributions are welcome! Please open an issue or submit a pull request if you find bugs or want to add features.
-
----
+```bash
+cargo test --workspace          # unit + pipeline integration tests
+cargo run -p blinker-cli -- e2e # against a running server + validator
+```
 
 ## License
 
-This project is open source and available under the [MIT License](LICENSE).
+MIT
