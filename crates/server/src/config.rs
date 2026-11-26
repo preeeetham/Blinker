@@ -120,7 +120,12 @@ impl Config {
             rpc_url,
             ws_url,
             treasury,
-            public_url: env("PUBLIC_URL").unwrap_or_else(|| "http://localhost:3000".into()).trim_end_matches('/').into(),
+            // Render (and similar hosts) inject the public URL of the service.
+            public_url: env("PUBLIC_URL")
+                .or_else(|| env("RENDER_EXTERNAL_URL"))
+                .unwrap_or_else(|| "http://localhost:3000".into())
+                .trim_end_matches('/')
+                .into(),
             fee_lamports: env_parse("BLINK_FEE_LAMPORTS", 1_000_000)?,
             data_dir: env("DATA_DIR").unwrap_or_else(|| "data".into()).into(),
             event_queue_capacity: env_parse("EVENT_QUEUE_CAPACITY", 8192)?,

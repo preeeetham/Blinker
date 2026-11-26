@@ -2,17 +2,22 @@
 # Multi-stage build: compile server + WASM bundle, ship a ~100 MB Debian image
 # running a single static-ish binary as an unprivileged user.
 
-FROM rust:1-bookworm AS build
+FROM rust:1-trixie AS build
+# Prebuilt cargo-leptos via cargo-binstall: compiling it from source needs
+# several GB of RAM, more than small CI/PaaS builders have.
+ARG CARGO_LEPTOS_VERSION=0.3.12
 RUN rustup target add wasm32-unknown-unknown \
- && cargo install cargo-leptos --locked
+ && curl -L --proto '=https' --tlsv1.2 -sSf \
+      https://raw.githubusercontent.com/cargo-bins/cargo-binstall/main/install-from-binstall-release.sh | bash \
+ && cargo binstall -y --locked cargo-leptos@${CARGO_LEPTOS_VERSION}
+# Bound peak memory during the release (LTO) build.
+ENV CARGO_BUILD_JOBS=2
 WORKDIR /src
 COPY . .
-RUN --mount=type=cache,target=/usr/local/cargo/registry \
-    --mount=type=cache,target=/src/target/cache \
-    cargo leptos build --release \
+RUN cargo leptos build --release \
  && mkdir -p /out && cp target/release/blinker-web /out/blinker && cp -r target/site /out/site
 
-FROM debian:bookworm-slim
+FROM debian:trixie-slim
 RUN apt-get update \
  && apt-get install -y --no-install-recommends ca-certificates tini \
  && rm -rf /var/lib/apt/lists/* \
