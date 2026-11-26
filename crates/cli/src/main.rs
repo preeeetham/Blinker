@@ -66,6 +66,19 @@ enum Cmd {
         title: String,
         #[arg(long, default_value = "0.01,0.05,0.1")]
         amounts: String,
+        #[arg(long)]
+        description: Option<String>,
+        /// https image URL (defaults to the Blinker artwork).
+        #[arg(long, default_value = "")]
+        icon: String,
+        #[arg(long, default_value = "Support")]
+        label: String,
+        /// aurora | sunset | ocean | lime | mono
+        #[arg(long, default_value = "aurora")]
+        theme: String,
+        /// Token symbol shown for SPL blinks.
+        #[arg(long)]
+        symbol: Option<String>,
     },
     /// Pay a blink through its Solana Action, like a wallet would.
     Pay {
@@ -83,6 +96,14 @@ enum Cmd {
 fn load_keypair(p: &Path) -> Result<Keypair> {
     let s = std::fs::read_to_string(p).with_context(|| format!("reading {}", p.display()))?;
     Keypair::from_json(&s).map_err(|e| anyhow::anyhow!("{}: {e}", p.display()))
+}
+
+struct BlinkSpec {
+    description: String,
+    icon: String,
+    label: String,
+    theme: String,
+    symbol: Option<String>,
 }
 
 struct Ctx {
@@ -161,15 +182,34 @@ impl Ctx {
     }
 
     async fn create_blink(&self, creator: &Keypair, kind: &str, mint: Option<&str>, title: &str, amounts: &[f64]) -> Result<Value> {
+        let spec = BlinkSpec {
+            description: format!("{title} — created by the blinker CLI"),
+            icon: String::new(),
+            label: "Support".into(),
+            theme: "aurora".into(),
+            symbol: mint.map(|_| "TEST".to_string()),
+        };
+        self.create_blink_with(creator, kind, mint, title, amounts, &spec).await
+    }
+
+    async fn create_blink_with(
+        &self,
+        creator: &Keypair,
+        kind: &str,
+        mint: Option<&str>,
+        title: &str,
+        amounts: &[f64],
+        spec: &BlinkSpec,
+    ) -> Result<Value> {
         let res = self
             .post(
                 "/api/blinks",
                 json!({
-                    "kind": kind, "title": title,
-                    "description": format!("{title} — created by the blinker CLI"),
-                    "label": "Support", "recipient": creator.pubkey().to_string(),
+                    "kind": kind, "title": title, "description": spec.description,
+                    "icon_url": spec.icon, "label": spec.label,
+                    "recipient": creator.pubkey().to_string(),
                     "creator": creator.pubkey().to_string(), "mint": mint,
-                    "token_symbol": mint.map(|_| "TEST"), "amounts": amounts, "theme": "aurora",
+                    "token_symbol": spec.symbol, "amounts": amounts, "theme": spec.theme,
                 }),
             )
             .await?;
@@ -337,11 +377,18 @@ async fn main() -> Result<()> {
             let kp = load_keypair(&payer)?;
             println!("mint {}", ctx.mint_token(&kp, decimals, amount).await?);
         }
-        Cmd::CreateBlink { keypair, kind, mint, title, amounts } => {
+        Cmd::CreateBlink { keypair, kind, mint, title, amounts, description, icon, label, theme, symbol } => {
             let kp = load_keypair(&keypair)?;
             let amounts: Vec<f64> = amounts.split(',').map(|a| a.trim().parse()).collect::<Result<_, _>>()?;
-            let b = ctx.create_blink(&kp, &kind, mint.as_deref(), &title, &amounts).await?;
-            println!("{}", serde_json::to_string_pretty(&b["blink"])?);
+            let spec = BlinkSpec {
+                description: description.unwrap_or_else(|| format!("{title} — created by the blinker CLI")),
+                icon,
+                label,
+                theme,
+                symbol,
+            };
+            let b = ctx.create_blink_with(&kp, &kind, mint.as_deref(), &title, &amounts, &spec).await?;
+            println!("{} {}", b["blink"]["id"].as_str().unwrap_or("?"), b["blink"]["blink_url"].as_str().unwrap_or(""));
         }
         Cmd::Pay { keypair, blink, amount } => {
             let kp = load_keypair(&keypair)?;
