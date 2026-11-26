@@ -2,6 +2,8 @@
 
 **Shareable Solana payment links ("blinks"), written in Rust from the wire format to the pixels.**
 
+**Live (Solana devnet): [blinker.onrender.com](https://blinker.onrender.com)** · [system telemetry](https://blinker.onrender.com/system) · [`/metrics`](https://blinker.onrender.com/metrics)
+
 Create a blink — title, image, preset amounts, recipient, in SOL or any SPL token — pay a 0.001 SOL
 activation fee, and share the link. Wallets and X render it as one-tap payment buttons (it's a
 spec-compliant [Solana Action](https://solana.com/docs/advanced/actions)), and the Blinker page doubles as a standalone checkout.
@@ -88,6 +90,31 @@ by the wallet and submitted by Blinker to its configured cluster.
 ```bash
 TREASURY_PUBKEY=<your devnet pubkey> docker compose up --build
 ```
+
+## Deployment
+
+The live instance runs on [Render](https://render.com) from [`render.yaml`](render.yaml): one Docker
+web service (82 MB image, Debian trixie, unprivileged user) plus a managed Postgres, on Solana devnet.
+New → Blueprint → this repo, and Render builds the `Dockerfile` and wires `DATABASE_URL`.
+
+* The server binds `$PORT` and uses `RENDER_EXTERNAL_URL` for share links, so no host-specific config is needed.
+* The image installs a prebuilt `cargo-leptos` (building it from source exhausts small builders) and caps
+  `CARGO_BUILD_JOBS`.
+* On the free plan the container has no persistent disk, so the event log — and therefore analytics —
+  starts empty after each deploy; blinks and payments live in Postgres and are unaffected.
+* In production it idles at ~14 MiB RSS with 5 threads (`/api/system`, read from `/proc`).
+
+The end-to-end test also runs against the live deployment:
+
+```bash
+cargo run -p blinker-cli -- --server https://blinker.onrender.com --rpc https://api.devnet.solana.com e2e
+```
+
+Showcase blinks on the live site (pay them with any devnet wallet):
+[Rust tooling](https://blinker.onrender.com/b/Mj0QBI5BZqs3) ·
+[coffee](https://blinker.onrender.com/b/CfTEIkzd3TKx) ·
+[indie game](https://blinker.onrender.com/b/bXvTWsceb8b8) ·
+[BLNK token tip jar](https://blinker.onrender.com/b/pcdfsQd30WJo)
 
 ## Measure it
 
